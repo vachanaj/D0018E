@@ -2,3 +2,4 @@
 .venv
 .vscode
 databas.pem
+__pycache__
