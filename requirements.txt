@@ -1,0 +1,5 @@
+python-dotenv
+Flask
+gunicorn
+mysql-connector-python
+pymysql-sa
