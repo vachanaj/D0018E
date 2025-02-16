@@ -1,6 +1,44 @@
-body{
+body {
     background-color: #f0f0f0;
     font-family: Arial, sans-serif;
     margin: 0;
-    padding: 10px;
+    padding: 0;
 }
+
+.full-page {
+    display: grid;
+    grid-template-rows: 10vh 90vh; /* Explicit height */
+    width: 100vw;
+    height: 100vh;
+}
+
+.top-bar {
+    display: grid;
+    grid-template-columns: 5% 10% 15% 50% 10% 10%;
+    align-items: center;
+    justify-items: center;
+    background-color: #0eece1;
+    color: rgb(233, 15, 15);
+    width: 100vw;
+    height: 10vh;
+}
+
+.top-bar li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%; /* Ensures each column fills its grid cell */
+    height: 100%;
+    border-right: 2px solid black; /* Creates the line between columns */
+}
+
+
+.content-page {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: rgb(219, 23, 23);
+}
+
