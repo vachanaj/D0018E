@@ -17,21 +17,47 @@
                 <li><button onclick="buttonClick('logo')">logo</button></li>
                 <li><button onclick="buttonClick('searchbar')">searchbar</button></li>
                 <li>
-                    <!-- Login Button -->
-                    <a href="/login" class="btn btn-light">
+                    <!-- Login Button - Use label for the checkbox -->
+                    <label for="loginCheckbox" class="btn btn-light">
                         <i class="bi bi-person-circle"></i> Login
-                    </a>
+                    </label>
                 </li>
                 <li><button onclick="buttonClick('shoppingbag')">shoppingbag</button></li>
             </ul>
         </div>
 
+        <div class="content-page">
+            <!-- Hidden checkbox that controls the login form visibility -->
+            <input type="checkbox" id="loginCheckbox" style="display: none;" />
 
+            <!-- Your login form -->
+            <div id="loginForm">
+                <form>
+                    <!-- Email input -->
+                    <div data-mdb-input-init class="form-outline mb-4">
+                        <input type="email" id="form2Example1" class="form-control" />
+                        <label class="form-label" for="form2Example1">Email address</label>
+                    </div>
 
-        <div class="content-page"></div>
+                    <!-- Password input -->
+                    <div data-mdb-input-init class="form-outline mb-4">
+                        <input type="password" id="form2Example2" class="form-control" />
+                        <label class="form-label" for="form2Example2">Password</label>
+                    </div>
+                    
+
+                    <!-- Submit button -->
+                    <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-4">Sign in</button>
+
+                    <!-- Register buttons -->
+                    <div class="text-center">
+                        <p>Not a member? <a href="#!">Register</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-
-    
 
 </body>
 </html>
+

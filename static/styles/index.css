@@ -42,3 +42,23 @@ body {
     color: rgb(219, 23, 23);
 }
 
+/* Initially hide the form */
+#loginForm {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Show the form when the checkbox is checked */
+#loginCheckbox:checked + #loginForm {
+    display: block;
+}
+
+
