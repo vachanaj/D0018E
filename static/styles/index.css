@@ -17,7 +17,7 @@ body {
     grid-template-columns: 5% 10% 15% 50% 10% 10%;
     align-items: center;
     justify-items: center;
-    background-color: #0eece1;
+    background-color: #54a6ff;
     color: rgb(233, 15, 15);
     width: 100vw;
     height: 10vh;
@@ -34,28 +34,26 @@ body {
 
 
 .content-page {
-    display: grid;
-    grid-template-columns: 50% 50%;
+    padding:10px;
     justify-content: center;
     align-items: center;
     height: 100%;
+    width: 100%;
     color: rgb(219, 23, 23);
 }
 
 /* Initially hide the form */
 #loginForm {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     background: white;
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-}
+    width: 30%;
+    margin-top: 30vh;
+    margin-left: 35vw;
 
+}
 /* Show the form when the checkbox is checked */
 #loginCheckbox:checked + #loginForm {
     display: block;
@@ -100,7 +98,7 @@ body {
 }
 
 .btn-search:hover {
-    background-color: #0056b3;
+    background-color: #54a6ff;
     transform: scale(1.05);
 }
 

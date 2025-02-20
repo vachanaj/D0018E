@@ -9,14 +9,23 @@
     <title>Clothing Store</title>
     <script>
         function sendLoginPage() {
-            fetch('/templates/login.html')
-                .then(response => response.text())
-                .then(data => {
-                    document.getElementById('content-page').innerHTML = data;
-                })
-                .catch(error => console.error('Error loading login page:', error));   
-
+               fetch('/login')
+               .then(response => response.text())
+               .then(data => {
+                console.log(data);
+                   document.getElementById('content-page').innerHTML = data;
+               });
         }
+
+        function sendRegistrationPage() {
+               fetch('/registration')
+               .then(response => response.text())
+               .then(data => {
+                console.log(data);
+                   document.getElementById('content-page').innerHTML = data;
+               });
+        }
+
     </script>
 </head>
 <body>
@@ -46,7 +55,7 @@
 
                 <li>
                     <!-- Login Button -->
-                    <div onclick="sendLoginPage()" class="btn btn-light">
+                    <div onclick=sendLoginPage(); class="btn btn-light">
                         <i class="bi bi-person-circle"></i> Login
                     </div>
                 </li>
@@ -54,9 +63,19 @@
             </ul>
         </div>
 
-        <div id="content-page" class="content-page">
-  
+        <div id="content-page" class="content-page" >
+            
+            
         </div>
+
+        <div class="footer">
+            <ul class="footer-bar  justify-content-center">
+                <li><button onclick="buttonClick('home')">home</button></li>
+                <li><button onclick="buttonClick('aboutus')">aboutus</button></li>
+                <li><button onclick="buttonClick('contactus')">contactus</button></li>
+                <li><button onclick="buttonClick('termsandconditions')">termsandconditions</button></li>
+            </ul>
+        </div>      
     </div>
 </body>
 </html>

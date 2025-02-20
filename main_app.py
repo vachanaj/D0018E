@@ -19,18 +19,47 @@ def db_test():
 @app.route('/login', methods=['GET','POST'])
 def login_data():
   if request.method == 'POST':
-    username = request.form['form2Example1']
-    password = request.form['form2Example2']
+    print("login POST request")
+    username = request.form['username']
+    
+    password = request.form['password']
     # Process the login data
     result = db_connector.validate_login(username, password)
     if result:
-      return "Login Successful!"
+      return redirect('/welcome-page')
     else:
-      return "Login failed!"
-    
+      return redirect('/error-page')
+
   if request.method == 'GET':
-    return render_template('login.html')  # Ensures template is rendered first 
+    return render_template('login.html')
     
+@app.route('/welcome-page')
+def welcome_page():
+  
+  return render_template('userhome.html')
+
+@app.route('/error-page')
+def error_page():
+  return "Login failed!"
+
+@app.route('/register')
+def registration_page():
+  return render_template('registration.html')
+
+@app.route('/newuser', methods=['POST'])
+def register_user():
+  if request.method == 'POST':
+    print("register POST request")
+    first = request.form['first']
+    last = request.form['last']
+    username = request.form['username']
+    password = request.form['password']
+    # Process the login data
+    result = db_connector.register_user(first, last, username, password)
+    if result:
+      return redirect('/welcome-page')
+    else:
+      return redirect('/error-page')
 
 
 """@app.route('/login')
@@ -45,7 +74,7 @@ def login_data():
       return "Login failed!"
 
 
-@app.route('/welcome-page')
+
 
 @app.route('/login-page')"""
 
