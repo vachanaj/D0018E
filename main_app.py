@@ -16,21 +16,24 @@ def db_test():
     return "Database test failed!"
 
 
-"""@app.route('/login', methods=['POST'])
+@app.route('/templates//login.html', methods=['GET','POST'])
 def login_data():
   if request.method == 'POST':
-    username = request.form['username']
-    password = request.form['password']
+    username = request.form['form2Example1']
+    password = request.form['form2Example2']
     # Process the login data
     result = db_connector.validate_login(username, password)
     if result:
-      return redirect('/welcome-page')
+      return "Login Successful!"
     else:
       return "Login failed!"
-    return redirect('/login-page')"""
+    
+  if request.method == 'GET':
+    return render_template('login.html')  # Ensures template is rendered first 
+    
 
 
-@app.route('/login')
+"""@app.route('/login')
 def login_data():
     username = "Irma1"
     password = "admin"
@@ -42,7 +45,7 @@ def login_data():
       return "Login failed!"
 
 
-"""@app.route('/welcome-page')
+@app.route('/welcome-page')
 
 @app.route('/login-page')"""
 
