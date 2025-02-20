@@ -9,7 +9,7 @@
     <title>Clothing Store</title>
     <script>
         function sendLoginPage() {
-            fetch('templates/login.html')
+            fetch('/templates/login.html')
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('content-page').innerHTML = data;
