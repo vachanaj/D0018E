@@ -16,7 +16,7 @@ def db_test():
     return "Database test failed!"
 
 
-@app.route('/templates//login.html', methods=['GET','POST'])
+@app.route('/login', methods=['GET','POST'])
 def login_data():
   if request.method == 'POST':
     username = request.form['form2Example1']
