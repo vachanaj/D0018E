@@ -7,6 +7,26 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <title>Clothing Store</title>
+    <script>
+        function sendLoginPage() {
+               fetch('/login')
+               .then(response => response.text())
+               .then(data => {
+                console.log(data);
+                   document.getElementById('content-page').innerHTML = data;
+               });
+        }
+
+        function sendRegistrationPage() {
+               fetch('/registration')
+               .then(response => response.text())
+               .then(data => {
+                console.log(data);
+                   document.getElementById('content-page').innerHTML = data;
+               });
+        }
+
+    </script>
 </head>
 <body>
     <div class="full-page">
@@ -35,17 +55,27 @@
 
                 <li>
                     <!-- Login Button -->
-                    <a href="/templates/login.html" class="btn btn-light">
+                    <div onclick=sendLoginPage(); class="btn btn-light">
                         <i class="bi bi-person-circle"></i> Login
-                    </a>
+                    </div>
                 </li>
                 <li><button onclick="buttonClick('shoppingbag')">shoppingbag</button></li>
             </ul>
         </div>
 
-        <div class="content-page">
-  
+        <div id="content-page" class="content-page" >
+            
+            
         </div>
+
+        <div class="footer">
+            <ul class="footer-bar  justify-content-center">
+                <li><button onclick="buttonClick('home')">home</button></li>
+                <li><button onclick="buttonClick('aboutus')">aboutus</button></li>
+                <li><button onclick="buttonClick('contactus')">contactus</button></li>
+                <li><button onclick="buttonClick('termsandconditions')">termsandconditions</button></li>
+            </ul>
+        </div>      
     </div>
 </body>
 </html>

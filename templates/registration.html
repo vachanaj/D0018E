@@ -67,20 +67,30 @@
                 document.getElementById("pwdmismatch").innerHTML = "Passwords do not match";
             } else {
                 document.getElementById("pwdmismatch").innerHTML = "Password matched";
+                document.querySelector("form").submit();
             }
         }
+        /*
+        document.querySelector("form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            validatePassword();
+        });*/
+        
     </script>
 </head>
 
 <body>
     <div class="main">
         <h2>Registration Form</h2>
-        <form action="">
+        <form action="/newuser" method="POST">
             <label for="first">First Name:</label>
             <input type="text" id="first" name="first" required />
 
             <label for="last">Last Name:</label>
             <input type="text" id="last" name="last" required />
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required />
 
             <label for="password">Password:</label>
             <input type="password" id="password" name="password"
@@ -92,14 +102,9 @@
             <label for="repassword">Re-type Password:</label>
             <input type="password" id="repassword" name="repassword" required />
             <label for="" id="pwdmismatch"></label>
-            <script>
-                document.querySelector("form").addEventListener("submit", function(event) {
-                    event.preventDefault();
-                    validatePassword();
-                });
-            </script>
+            
 
-            <button type="submit" onclick="validatePassword()">
+            <button type="button" onclick="validatePassword()">
                 Submit
             </button>
         </form>
