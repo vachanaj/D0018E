@@ -15,6 +15,10 @@ def db_test():
   else:
     return "Database test failed!"
 
+@app.route('/shoppingcart')
+def shoppingcart():
+  return render_template('shoppingcart.html')
+
 
 @app.route('/login', methods=['GET','POST'])
 def login_data():
