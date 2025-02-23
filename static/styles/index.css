@@ -1,5 +1,5 @@
 body {
-    background-color: #f0f0f0;
+    background-color: #f7d9e2;
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -17,7 +17,7 @@ body {
     grid-template-columns: 5% 10% 15% 50% 10% 10%;
     align-items: center;
     justify-items: center;
-    background-color: #54a6ff;
+    background-color: white;
     color: rgb(233, 15, 15);
     width: 100vw;
     height: 10vh;
@@ -35,6 +35,7 @@ body {
 
 .content-page {
     padding:10px;
+    background-color: #f7d9e2;
     justify-content: center;
     align-items: center;
     height: 100%;
@@ -88,7 +89,7 @@ body {
 }
 
 .btn-search {
-    background-color: #007bff;
+    background-color: #f19cb5;
     color: white;
     border-radius: 50px;
     padding: 5px 15px; /* Smaller button */
@@ -159,4 +160,9 @@ body {
 }
 
 
+@media (min-width: 1025px) {
+    .h-custom {
+    height: 100vh !important;
+    }
+    }
 
