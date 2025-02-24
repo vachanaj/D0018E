@@ -3,3 +3,4 @@ Flask
 gunicorn
 mysql-connector-python
 pymysql-sa
+stripe
