@@ -1,21 +1,22 @@
+import db_connector
+import stripe
+import os
 import sqlite3
+from dotenv import load_dotenv
 
-def add_to_cart(user_id, asset_id):
-    # Add product to cart
+# Load environment variables
+load_dotenv()
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
-
-    asset_details = get_asset_details(asset_id)
-
-
-
-
-
-
-#helper function for getting assets from asset table
-def get_asset_details(asset_id):
+def update_tables():
     conn = sqlite3.connect('/home/irma/code/D0018E/database.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM assets WHERE id=?", (asset_id,))
-    asset_details = cursor.fetchone()
+
+    # Example: Insert into transactions table
+    cursor.execute("INSERT INTO transactions (user_id, item, quantity, price) VALUES (?, ?, ?, ?)", 
+                   (1, "T-shirt", 2, 2000))
+
+    conn.commit()
     conn.close()
-    return asset_details
+
+    return True

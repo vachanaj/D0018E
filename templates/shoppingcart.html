@@ -28,20 +28,16 @@
             <div class="row">
               <div class="col-lg-7">
                 <h5 class="mb-3"><a href="javascript:history.back()" class="text-body"><i class="fas fa-long-arrow-alt-left me-2"></i>Continue shopping</a></h5>
-
                 <hr>
                 <div class="d-flex justify-content-between align-items-center mb-4">
                   <div>
                     <p class="mb-1">Shopping cart</p>
-                    <p class="mb-0">You have 4 items in your cart</p>
-                  </div>
-                  <div>
-                    <p class="mb-0"><span class="text-muted">Sort by:</span> <a href="#" class="text-body">price <i class="fas fa-angle-down mt-1"></i></a></p>
+                    <p class="mb-0">You have <span id="item-count">1</span> item(s) in your cart</p>
                   </div>
                 </div>
 
                 <!-- Shopping Items -->
-                <div class="card mb-3">
+                <div class="card mb-3 cart-item" data-price="900" data-quantity="2">
                   <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="d-flex flex-row align-items-center">
@@ -52,15 +48,13 @@
                         </div>
                       </div>
                       <div class="d-flex align-items-center">
-                        <h5 class="fw-normal mb-0 me-3">2</h5>
-                        <h5 class="mb-0 me-3">$900</h5>
-                        <a href="#" class="text-danger"><i class="fas fa-trash-alt"></i></a>
+                        <h5 class="fw-normal mb-0 me-3 item-quantity">2</h5>
+                        <h5 class="mb-0 me-3 item-price">$900</h5>
+                        <a href="#" class="text-danger" onclick="removeItem(this)"><i class="fas fa-trash-alt"></i></a>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <!-- Repeat for other items -->
               </div>
 
               <div class="col-lg-5">
@@ -70,24 +64,26 @@
 
                     <div class="d-flex justify-content-between">
                       <p class="mb-2">Subtotal</p>
-                      <p class="mb-2">$4798.00</p>
+                      <p class="mb-2" id="subtotal">$1800.00</p>
                     </div>
 
                     <div class="d-flex justify-content-between">
                       <p class="mb-2">Shipping</p>
-                      <p class="mb-2">$20.00</p>
+                      <p class="mb-2" id="shipping">$20.00</p>
                     </div>
 
                     <div class="d-flex justify-content-between mb-4">
                       <p class="mb-2">Total (Incl. taxes)</p>
-                      <p class="mb-2">$4818.00</p>
+                      <p class="mb-2" id="total">$1820.00</p>
                     </div>
+
                     <!-- button -->
-                    <button type="button" style="background-color: #f19cb5; color: white; border: none;" class="btn btn-block btn-lg">
-                        <div class="d-flex justify-content-between">
+                    <button id="checkout-button" style="background-color: #f19cb5; color: white; border: none;" class="btn btn-block btn-lg">
+                      <div class="d-flex justify-content-between">
                           <span>Checkout <i class="fas fa-long-arrow-alt-right ms-2"></i></span>
-                        </div>
-                    </button>
+                      </div>
+                  </button>
+                  
 
                   </div>
                 </div>
@@ -103,7 +99,52 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function removeItem(element) {
+        let item = element.closest('.cart-item');
+        item.remove();
+        updateCart();
+    }
 
+    function updateCart() {
+        let items = document.querySelectorAll('.cart-item');
+        let itemCount = items.length;
+        let subtotal = 0;
+        
+        items.forEach(item => {
+            let price = parseFloat(item.getAttribute('data-price'));
+            let quantity = parseInt(item.getAttribute('data-quantity'));
+            subtotal += price * quantity;
+        });
+
+        let shipping = itemCount > 0 ? 20.00 : 0;
+        let total = subtotal + shipping;
+        
+        document.getElementById('item-count').innerText = itemCount;
+        document.getElementById('subtotal').innerText = `$${subtotal.toFixed(2)}`;
+        document.getElementById('shipping').innerText = `$${shipping.toFixed(2)}`;
+        document.getElementById('total').innerText = `$${total.toFixed(2)}`;
+    }
+
+    function checkout() {
+        window.location.href = 'checkout-success.html';
+    }
+</script>
+
+<script>
+  document.getElementById('checkout-button').addEventListener('click', function () {
+      fetch('/create-checkout-session', { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+              if (data.url) {
+                  window.location.href = data.url;  // Redirect to Stripe
+              } else {
+                  alert('Error processing payment.');
+              }
+          })
+          .catch(error => console.error('Error:', error));
+  });
+</script>
 </body>
 </html>
 
