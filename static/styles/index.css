@@ -1,3 +1,8 @@
+html{
+    padding: 0;
+    margin: 0;
+}
+
 body {
     background-color: #f7d9e2;
     font-family: Arial, sans-serif;
@@ -5,42 +10,55 @@ body {
     padding: 0;
 }
 
+
 .full-page {
     display: grid;
     grid-template-rows: 10vh 90vh; /* Explicit height */
-    width: 100vw;
     height: 100vh;
 }
 
+
 .top-bar {
-    display: grid;
-    grid-template-columns: 5% 10% 15% 50% 10% 10%;
-    align-items: center;
-    justify-items: center;
-    background-color: white;
-    color: rgb(233, 15, 15);
-    width: 100vw;
-    height: 10vh;
+    list-style: none; /* Remove bullet points */
+    display: flex; /* Make list items align horizontally */
+    justify-content: space-between; /* Distribute items evenly */
+    padding: 10px;
+    margin: 0;
+    width: 100%; /* Ensures it fits the parent div */
+    grid-template-columns: 40vw auto 20vw;
 }
 
-.top-bar li {
+.top-bar-left{
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+    justify-content: space-between;
+}
+
+.top-bar-middle{
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%; /* Ensures each column fills its grid cell */
-    height: 100%;
-    border-right: 2px solid black; /* Creates the line between columns */
+}
+
+.top-bar-right{
+    display: grid;
+    align-items: center;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+    justify-content: space-between;
 }
 
 
-.content-page {
+#content-page {
     padding:10px;
     background-color: #f7d9e2;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    width: 100%;
     color: rgb(219, 23, 23);
+    display: flex;
+    flex-direction: column; /* Ensures height grows */
 }
 
 /* Initially hide the form */
@@ -67,6 +85,7 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     padding: 10px;
     max-width: 300px; /* Adjust width to fit in the navbar */
+    max-height: 35px;
     width: 100%;
     transition: all 0.3s ease;
 }
@@ -80,7 +99,7 @@ body {
     background: transparent;
     padding-left: 20px;
     font-size: 1rem;
-    height: 40px; /* Adjusted for a smaller search bar */
+    height:20px; /* Adjusted for a smaller search bar */
 }
 
 .form-control.search-input:focus {
@@ -113,18 +132,17 @@ body {
 
 #product-gallery{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 4fr));
+    grid-template-columns: repeat(auto-fill, minmax(20%, 4fr));
     gap: 20px;
-    padding: 20px;
+    padding: 5%;
 }
 
-#product-card{
+.product-card{
     display: grid;
-    grid-template-rows: 90% 10%;
-    padding: 20px;
+    
 }
 
-#product-card:hover{
+.product-card:hover{
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     transform: translateY(-5px);
 }
