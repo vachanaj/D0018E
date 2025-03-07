@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <title>Clothing Store</title>
     <script>
+
+        function openNav() {
+        document.getElementById("mySidenav").style.width = "250px";
+        }
+
+        function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+        }
+
         function sendLoginPage() {
                fetch('/login')
                .then(response => response.text())
@@ -26,66 +35,156 @@
                });
         }
 
+        function addToCart(button) {
+            // Get parent product div
+            let product = button.parentElement.parentElement;
+            console.log(product);
+            // Extract product details
+            let productData = {
+                id: product.getAttribute("data-id"),
+                name: product.getAttribute("data-name"),
+                price: product.getAttribute("data-price")
+            };
+
+            // Send product data to Python backend
+            fetch('/add_to_cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message)) // Show success message
+            .catch(error => console.error("Error:", error));
+        }
+
     </script>
 </head>
 <body>
+    
     <div class="full-page">
-        <div class="header">
-            <ul class="top-bar">
-                <li><button onclick="buttonClick('hamburgermenu')">hamburgermenu</button></li>
-                <li><button onclick="buttonClick('menu')">menu</button></li>
-                <li><button onclick="buttonClick('logo')"><img src="/static/images/logo.png" alt="Logo" style="height: 100px;"></button></li>
-                
-                <!-- Integrated Search Bar -->
-                <li>
-                    <div class="search-container position-relative">
-                        <form class="d-flex align-items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                class="search-icon feather feather-search">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            <input class="form-control search-input ps-5" type="search"
-                                   placeholder="Search anything..." aria-label="Search">
-                            <button class="btn btn-search ms-2" type="submit">Search</button>
-                        </form>
-                    </div>
-                </li>
 
-                <li>
-                    <!-- Login Button -->
-                    <div onclick=sendLoginPage(); class="btn btn-light">
-                        <i class="bi bi-person-circle"></i> Login
-                    </div>
-                </li>
-
-                
-                <li>
-                    <!-- shoppingcart Button -->
-                    <div onclick="window.location.href='/shoppingcart'" class="btn btn-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
-                            <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+        <div class="top-bar">
+            <div class = "top-bar-left">
+                <div onclick="buttonClick('hamburgermenu')"><i class="bi bi-list"></i> Menu </div>
+                <div> <a href="/"><img src="/static/images/logo.png" alt="Logo" style="height: 35px;"></a></div>
+            </div>
+            <!-- Integrated Search Bar -->
+            
+            <div class = "top-bar-middle">
+                <div class="search-container position-relative">
+                    <form class="d-flex align-items-center">
+                        <input class="form-control search-input ps-5" type="search"
+                                placeholder="Search anything..." aria-label="Search" style="padding-top: 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="search-icon feather feather-search" type = "submit" style=" margin-left: 80%;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                    </div>
-                </li>
+                        
+                    </form>
+                </div>
+            </div>
+            
+            <div class = "top-bar-right">
+                <!-- Login Button -->
+                <div onclick=sendLoginPage(); class="btn btn-light">
+                    <i class="bi bi-person-circle"></i> Login
+                </div>
+                
+                <!-- shoppingcart Button -->
+                <div onclick="openNav()" class="btn btn-light">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                        <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="mySidenav" class="sidenav">
+            <div class="sidenav-content">
+                <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+                <a href="#">About</a>
+                <a href="#">Services</a>
+                <a href="#">Clients</a>
+                <a href="#">Contact</a>
+                <a href ="/shoppingcart"> <button class="btn btn-light" style="position:absolute; bottom:10px; left:15%; background-color: #f7d9e2;"> Continue to checkout </button> </a>
+            </div>
+        </div>
 
             
-            </ul>
-        </div>
+           
 
         <div id="content-page" class="content-page" >
             
-            
+            <div id = "product-gallery">
+                <div class = "product-card" data-id="1" data-name="Dress" data-price="1200">
+                    
+                    <div class = "product-image">
+                        <img src="/static/images/dress_test.jpg">
+                        <button class="cart-button" onclick="addToCart(this)" >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16" >
+                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                            </svg>  
+                        </button>
+                    </div>
+                    <div class = "product-info">
+                        <h3>Product Name</h3>
+                        <p>Price</p>
+
+                    </div>
+                </div>
+                <div class = "product-card">
+                    <div class = "product-image">
+                        <img src="/static/images/dress_test.jpg" alt="Image">
+                        <button class="cart-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                            </svg>  
+                        </button>
+                    </div>
+                    <div class = "product-info">
+                        <h3>Product Name</h3>
+                        <p>Price</p>
+
+                    </div>
+                </div>
+                <div class = "product-card">
+                    <div class = "product-image">
+                        <img src="/static/images/dress_test.jpg" alt="Image">
+                        <button class="cart-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class = "product-info">
+                        <h3>Product Name</h3>
+                        <p>Price</p>
+
+                    </div>
+                </div>
+                <div class = "product-card">
+                    <div class = "product-image">
+                        <img src="/static/images/dress_test.jpg" alt="Image">
+                        <button class="cart-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class = "product-info">
+                        <h3>Product Name</h3>
+                        <p>Price</p>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
+        
         <div class="footer">
-            <ul class="footer-bar  justify-content-center">
-                <li><button onclick="buttonClick('home')">home</button></li>
-                <li><button onclick="buttonClick('aboutus')">aboutus</button></li>
-                <li><button onclick="buttonClick('contactus')">contactus</button></li>
-                <li><button onclick="buttonClick('termsandconditions')">termsandconditions</button></li>
-            </ul>
+           
         </div>      
     </div>
 </body>

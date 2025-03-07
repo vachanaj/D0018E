@@ -2,8 +2,11 @@ from flask import Flask, render_template, request, redirect, jsonify, session, u
 import stripe
 import os
 import user_transactions
+import login
+import cart
 from dotenv import load_dotenv
-from db_connector import validate_login
+import db_connector 
+from login import validate_login
 
 # Load environment variables from .env file
 load_dotenv()
@@ -15,39 +18,118 @@ app.secret_key = os.getenv("SECRET_KEY")  # Load secret key from .env
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+#
+#         user = validate_login(username, password)  # Fetch user details
+#
+#         if user:
+#             session['username'] = user['login_username']
+#             session['role'] = user['login_role']
+#
+#             if user['login_role'] == 'admin':
+#                 return redirect(url_for('admin'))
+#             else:
+#                 return redirect(url_for('index'))  # Redirect normal users to homepage
+#
+#         return "Invalid credentials, try again!"
+#
+#     return render_template('login.html')
+
+@app.route('/admin')
+def admin_page():
+    if 'username' in session and session['role'] == 'admin':
+        return render_template('admin.html')  # Admin dashboard page
+    else:
+        return redirect(url_for('login'))  # Redirect to login if not an admin
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
-        user = validate_login(username, password)  # Fetch user details
-
+        # Validate login credentials (using your login validation function)
+        user = validate_login(username, password)  # Assuming this function fetches user details from DB
+        
         if user:
+            # Store user information in session
             session['username'] = user['login_username']
             session['role'] = user['login_role']
 
+            # Check if the user is an admin or normal user
             if user['login_role'] == 'admin':
-                return redirect(url_for('admin_page'))
+                return redirect(url_for('admin_page'))  # Redirect to admin page if admin
             else:
                 return redirect(url_for('index'))  # Redirect normal users to homepage
+            
+        else:
+            return redirect('/error-page')  # Invalid credentials, redirect to error page
 
-        return "Invalid credentials, try again!"
+    return render_template('login.html')  # Show login form if GET request
 
-    return render_template('login.html')
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/admin')
-def admin_page():
-    if 'username' in session and session['role'] == 'admin':
-        return render_template('admin.html')
+@app.route('/db-test')
+def db_test():
+  if db_connector.dbtester():
+    return "Database test successful!"
+  else:
+    return "Database test failed!"
+
+# @app.route('/login', methods=['GET','POST'])
+# def login_data():
+#   if request.method == 'POST':
+#     print("login POST request")
+#     username = request.form['username']
+#     
+#     password = request.form['password']
+#     # Process the login data
+#     result = login.validate_login(username, password)
+#     if result:
+#        return redirect('/')
+#     else:
+#        return redirect('/error-page')
+#   if request.method == 'GET':
+#     return render_template('login.html')
+
+@app.route('/error-page')
+def error_page():
+  return "Login failed!"
+
+@app.route('/register')
+def registration_page():
+  return render_template('registration.html')
+
+@app.route('/newuser', methods=['POST'])
+def register_user():
+  if request.method == 'POST':
+    print("register POST request")
+    first = request.form['first']
+    last = request.form['last']
+    username = request.form['username']
+    password = request.form['password']
+    # Process the login data
+    result = login.register_user(first, last, username, password)
+    if result:
+      return redirect('/welcome-page')
     else:
-        return redirect(url_for('login'))
+      return redirect('/error-page')
+     
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    data = request.json  # Get product data from frontend
+    print("Added to Cart:", data)  # Print to console (or process further)
 
-
+    cart.add_to_cart(data)
+    # You can store this in a database or session
+    return jsonify({"message": f"{data['name']} added to cart!"})  # Send response
 
 @app.route('/shoppingcart')
 def shoppingcart():
