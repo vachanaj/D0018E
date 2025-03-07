@@ -2,7 +2,10 @@ from flask import Flask, render_template, request, redirect, jsonify
 import stripe
 import os
 import user_transactions
+import login
+import cart
 from dotenv import load_dotenv
+import db_connector
 
 # Load environment variables from .env file
 load_dotenv()
@@ -16,6 +19,61 @@ PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/db-test')
+def db_test():
+  if db_connector.dbtester():
+    return "Database test successful!"
+  else:
+    return "Database test failed!"
+
+@app.route('/login', methods=['GET','POST'])
+def login_data():
+  if request.method == 'POST':
+    print("login POST request")
+    username = request.form['username']
+    
+    password = request.form['password']
+    # Process the login data
+    result = login.validate_login(username, password)
+    if result:
+       return redirect('/')
+    else:
+       return redirect('/error-page')
+  if request.method == 'GET':
+    return render_template('login.html')
+
+@app.route('/error-page')
+def error_page():
+  return "Login failed!"
+
+@app.route('/register')
+def registration_page():
+  return render_template('registration.html')
+
+@app.route('/newuser', methods=['POST'])
+def register_user():
+  if request.method == 'POST':
+    print("register POST request")
+    first = request.form['first']
+    last = request.form['last']
+    username = request.form['username']
+    password = request.form['password']
+    # Process the login data
+    result = login.register_user(first, last, username, password)
+    if result:
+      return redirect('/welcome-page')
+    else:
+      return redirect('/error-page')
+     
+@app.route('/add_to_cart', methods=['POST'])
+def add_to_cart():
+    data = request.json  # Get product data from frontend
+    print("Added to Cart:", data)  # Print to console (or process further)
+
+    cart.add_to_cart(data)
+    # You can store this in a database or session
+    return jsonify({"message": f"{data['name']} added to cart!"})  # Send response
 
 @app.route('/shoppingcart')
 def shoppingcart():

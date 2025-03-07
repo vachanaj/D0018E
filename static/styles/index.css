@@ -12,7 +12,7 @@ body {
 
 
 .full-page {
-    display: grid;
+    /*display: grid;
     grid-template-rows: 10vh 90vh; /* Explicit height */
     height: 100vh;
 }
@@ -64,13 +64,10 @@ body {
 /* Initially hide the form */
 #loginForm {
     background: white;
-    padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    width: 30%;
-    margin-top: 30vh;
-    margin-left: 35vw;
+    padding: 50px;
 
 }
 /* Show the form when the checkbox is checked */
@@ -130,11 +127,52 @@ body {
     transform: translateY(-50%);
 }
 
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    background-color: #ffffff;
+    overflow-x: hidden;
+    padding-top: 60px;
+}
+
+.sidenav-content {
+    /*height: 100%;
+    display: grid;
+    grid-template-rows: 5% 5% 5% 5% 5% 80% 10%;*/
+    
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+
 #product-gallery{
+    width: 100%;
+    height: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(20%, 4fr));
     gap: 20px;
-    padding: 5%;
 }
 
 .product-card{
