@@ -43,7 +43,7 @@ def admin_page():
             return "An error occurred while fetching assets.", 500
     return redirect(url_for('login'))  # Redirect to login if not an admin
 
-# Add/remove Asset Route
+# Add Asset Route
 @app.route('/admin/add-asset', methods=['POST'])
 def add_asset():
     if 'username' in session and session['role'] == 'admin':
@@ -83,7 +83,27 @@ def add_asset():
             return jsonify({"success": False, "message": "An error occurred while adding the asset"}), 500
     return jsonify({"success": False, "message": "Unauthorized"}), 401
 
+#delete asset route
+@app.route('/admin/delete-asset/<int:assetId>', methods=['POST'])
+def delete_asset(assetId):
+    if 'username' in session and session['role'] == 'admin':
+        try:
+            # Get the database connection from db_connector
+            db = db_connector.db
+            if db and db.is_connected():
+                cursor = db.cursor()
 
+                # Delete the asset from the database
+                cursor.execute('DELETE FROM assets WHERE assets_id = %s', (assetId,))
+                db.commit()
+                cursor.close()
+                return jsonify({"success": True, "message": "Asset deleted successfully!"}), 200
+            else:
+                return jsonify({"success": False, "message": "Database connection failed"}), 500
+        except Exception as e:
+            print(f"Error deleting asset: {e}")
+            return jsonify({"success": False, "message": "An error occurred while deleting the asset"}), 500
+    return jsonify({"success": False, "message": "Unauthorized"}), 401
 
 
 @app.route('/admin/add-admin')
