@@ -33,8 +33,20 @@ def dbtester():
     return False
  
 
+# def validate_login(username, password):
+#   if db.is_connected():
+#     cursor = db.cursor()
+#     query = "SELECT * FROM login WHERE login_username = %s AND login_password = %s"
+#     cursor.execute(query, (username, password))
+#     result = cursor.fetchone()
+#     cursor.close()
+#     return result is not None
+#   else:
+#     return None
 
-  
+
+
+
 
 
     
