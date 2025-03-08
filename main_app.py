@@ -105,6 +105,48 @@ def delete_asset(assetId):
             return jsonify({"success": False, "message": "An error occurred while deleting the asset"}), 500
     return jsonify({"success": False, "message": "Unauthorized"}), 401
 
+#Update asset route
+@app.route('/admin/update-asset/<int:assetId>', methods=['POST'])
+def update_asset(assetId):
+    if 'username' in session and session['role'] == 'admin':
+        try:
+            # Get the data from the request (sent as JSON)
+            data = request.json
+            print("Received data for update:", data)  # Debugging: Print received data
+            if not data:
+                return jsonify({"success": False, "message": "No data provided"}), 400
+
+            # Extract fields from the data
+            assets_type = data.get('assets_type')
+            assets_description = data.get('assets_description')
+            assets_price = data.get('assets_price')
+            assets_quantity = data.get('assets_quantity')
+            assets_img_name = data.get('assets_img_name')
+
+            # Validate required fields
+            if not all([assets_type, assets_price, assets_quantity]):
+                return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+            # Get the database connection from db_connector
+            db = db_connector.db
+            if db and db.is_connected():
+                cursor = db.cursor()
+
+                # Update the asset in the database
+                cursor.execute('''
+                    UPDATE assets 
+                    SET assets_type = %s, assets_description = %s, assets_price = %s, assets_quantity = %s, assets_img_name = %s
+                    WHERE assets_id = %s
+                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, assetId))
+                db.commit()
+                cursor.close()
+                return jsonify({"success": True, "message": "Asset updated successfully!"}), 200
+            else:
+                return jsonify({"success": False, "message": "Database connection failed"}), 500
+        except Exception as e:
+            print(f"Error updating asset: {e}")  # Debugging: Print the error
+            return jsonify({"success": False, "message": "An error occurred while updating the asset"}), 500
+    return jsonify({"success": False, "message": "Unauthorized"}), 401
 
 @app.route('/admin/add-admin')
 def add_admin():

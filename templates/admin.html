@@ -156,7 +156,7 @@
                             <th>assets_description</th>
                             <th>assets_price</th>
                             <th>assets_quantity</th>
-                            <th>assets_img_</th>
+                            <th>assets_img_name</th>
                             <th>Delete</th>
                             <th>Save</th>
                         </tr>
@@ -288,6 +288,7 @@ function saveRow(assetId) {
         assets_quantity: inputs[3].value,
         assets_img_name: inputs[4].value
     };
+    console.log("Data to update:", data);  // Debugging: Print data to update
 
     fetch(`/admin/update-asset/${assetId}`, {
         method: 'POST',
@@ -296,8 +297,12 @@ function saveRow(assetId) {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log("Response status:", response.status);  // Debugging: Print response status
+        return response.json();
+    })
     .then(result => {
+        console.log("Response data:", result);  // Debugging: Print response data
         if (result.success) {
             alert('Asset updated successfully!');
         } else {
@@ -305,10 +310,11 @@ function saveRow(assetId) {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Error:', error);  // Debugging: Print the error
         alert('An error occurred while updating the asset.');
     });
 }
+
 </script>
 </body>
 </html>
