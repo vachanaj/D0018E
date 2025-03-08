@@ -13,8 +13,10 @@ def update_tables():
     cursor = conn.cursor()
 
     # Example: Insert into transactions table
-    cursor.execute("INSERT INTO transactions (user_id, item, quantity, price) VALUES (?, ?, ?, ?)", 
-                   (1, "T-shirt", 2, 2000))
+    #cursor.execute("INSERT INTO transactions (user_id, item, quantity, price) VALUES (?, ?, ?, ?)", 
+    #               (1, "T-shirt", 2, 2000))
+
+    cursor.execute("SELECT * FROM item_cart")
 
     conn.commit()
     conn.close()

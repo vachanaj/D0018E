@@ -2,11 +2,10 @@ from flask import Flask, render_template, request, redirect, jsonify, session, u
 import stripe
 import os
 import user_transactions
-import login
 import cart
 from dotenv import load_dotenv
 import db_connector 
-from login import validate_login
+from login import validate_login, register_admin  # Ensure correct import
 
 # Load environment variables from .env file
 load_dotenv()
@@ -18,33 +17,82 @@ app.secret_key = os.getenv("SECRET_KEY")  # Load secret key from .env
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     if request.method == 'POST':
-#         username = request.form['username']
-#         password = request.form['password']
-#
-#         user = validate_login(username, password)  # Fetch user details
-#
-#         if user:
-#             session['username'] = user['login_username']
-#             session['role'] = user['login_role']
-#
-#             if user['login_role'] == 'admin':
-#                 return redirect(url_for('admin'))
-#             else:
-#                 return redirect(url_for('index'))  # Redirect normal users to homepage
-#
-#         return "Invalid credentials, try again!"
-#
-#     return render_template('login.html')
+# Helper function to get database connection
+def get_db_connection():
+    conn = db_connector.get_connection()  # Assuming db_connector has a function to get a connection
+    return conn
 
-@app.route('/admin')
+
+# Admin Dashboard Route
+@app.route('/admin/dashboard')
 def admin_page():
     if 'username' in session and session['role'] == 'admin':
-        return render_template('admin.html')  # Admin dashboard page
+        try:
+            # Get the database connection from db_connector
+            db = db_connector.db
+            if db and db.is_connected():
+                cursor = db.cursor(dictionary=True)  # Use dictionary=True to get results as dictionaries
+                cursor.execute('SELECT * FROM assets')  # Fetch all assets from the database
+                assets = cursor.fetchall()  # Fetch all rows
+                cursor.close()
+                return render_template('admin.html', assets=assets)  # Pass assets to the template
+            else:
+                return "Database connection failed. Please check your connection.", 500
+        except Exception as e:
+            print(f"Error fetching assets: {e}")
+            return "An error occurred while fetching assets.", 500
+    return redirect(url_for('login'))  # Redirect to login if not an admin
+
+# Add/remove Asset Route
+@app.route('/admin/add-asset', methods=['POST'])
+def add_asset():
+    if 'username' in session and session['role'] == 'admin':
+        try:
+            # Get the data from the request (sent as JSON)
+            data = request.json
+            if not data:
+                return jsonify({"success": False, "message": "No data provided"}), 400
+
+            # Extract fields from the data
+            assets_type = data.get('assets_type')
+            assets_description = data.get('assets_description')
+            assets_price = data.get('assets_price')
+            assets_quantity = data.get('assets_quantity')
+            assets_img_addr = data.get('assets_img_addr')
+
+            # Validate required fields
+            if not all([assets_type, assets_price, assets_quantity]):
+                return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+            # Get the database connection from db_connector
+            db = db_connector.db
+            if db and db.is_connected():
+                cursor = db.cursor()
+                # Insert the new asset into the database
+                cursor.execute('''
+                    INSERT INTO assets (assets_type, assets_description, assets_price, assets_quantity, assets_img_addr)
+                    VALUES (%s, %s, %s, %s, %s)
+                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_addr))
+                db.commit()
+                cursor.close()
+                return jsonify({"success": True, "message": "Asset added successfully!"}), 201
+            else:
+                return jsonify({"success": False, "message": "Database connection failed"}), 500
+        except Exception as e:
+            print(f"Error adding asset: {e}")
+            return jsonify({"success": False, "message": "An error occurred while adding the asset"}), 500
+    return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+
+
+
+@app.route('/admin/add-admin')
+def add_admin():
+    if 'username' in session and session['role'] == 'admin':
+        return render_template('admin.html', section='add-admin')  # Admin dashboard page
     else:
         return redirect(url_for('login'))  # Redirect to login if not an admin
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -71,7 +119,6 @@ def login():
 
     return render_template('login.html')  # Show login form if GET request
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -82,22 +129,6 @@ def db_test():
     return "Database test successful!"
   else:
     return "Database test failed!"
-
-# @app.route('/login', methods=['GET','POST'])
-# def login_data():
-#   if request.method == 'POST':
-#     print("login POST request")
-#     username = request.form['username']
-#     
-#     password = request.form['password']
-#     # Process the login data
-#     result = login.validate_login(username, password)
-#     if result:
-#        return redirect('/')
-#     else:
-#        return redirect('/error-page')
-#   if request.method == 'GET':
-#     return render_template('login.html')
 
 @app.route('/error-page')
 def error_page():
@@ -121,7 +152,22 @@ def register_user():
       return redirect('/welcome-page')
     else:
       return redirect('/error-page')
-     
+
+@app.route('/newadmin', methods=['POST'])
+def register_admin_route():
+  if request.method == 'POST':
+    print("register POST request")
+    first = request.form['first']
+    last = request.form['last']
+    username = request.form['username']
+    password = request.form['password']
+    # Process the login data
+    result = register_admin(first, last, username, password)  # Call the imported function directly
+    if result:
+      return jsonify({"success": True, "message": "Admin registered successfully"})
+    else:
+      return jsonify({"success": False, "message": "Failed to register admin"})
+
 @app.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     data = request.json  # Get product data from frontend
@@ -166,3 +212,5 @@ def checkout_success():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
+
