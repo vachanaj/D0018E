@@ -113,15 +113,24 @@ def login():
             if user['login_role'] == 'admin':
                 return redirect(url_for('admin_page'))  # Redirect to admin page if admin
             else:
-                return redirect(url_for('index'))  # Redirect normal users to homepage
+                return redirect(url_for('index'), session=session)  # Redirect normal users to homepage
             
         else:
             return redirect('/error-page')  # Invalid credentials, redirect to error page
 
     return render_template('login.html')  # Show login form if GET request
 
+@app.route('/logout')
+def logout():
+    print("before logout!", session['username'])
+    session.pop('username', None)
+    session.pop('role', None)
+    print("Logged out successfully!")
+    return redirect(url_for('index'))  # back to start after logout
+
 @app.route('/')
 def index():
+    
     assets = product_gallery.get_all_assets()
     return render_template('index.html', assets=assets)
 

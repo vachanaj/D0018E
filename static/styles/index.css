@@ -64,27 +64,6 @@ body {
     display: block;
 }
 
-.dropdown {
-    display: none;
-    position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    min-width: 120px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.dropdown button {
-    width: 100%;
-    padding: 8px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-
-.dropdown button:hover {
-    background-color: #f0f0f0;
-}
 
 /* Search Bar Styling */
 .search-container {

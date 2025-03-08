@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-
+        sessionStorage.clear();
         $(function () {
             $('[data-toggle="popover"]').popover()
            
@@ -65,6 +65,18 @@
             .catch(error => console.error("Error:", error));
         }
 
+        function logout() {
+            fetch('/logout')
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                document.getElementById('login-button').innerHTML = 
+                '<div onclick=sendLoginPage(); class="btn btn-light">'                            
+                +'<i class="bi bi-person-circle"></i> Login'
+                +'</div>';
+                //document.getElementById('content-page').innerHTML = data;
+            });
+        }
         
 
     </script>
@@ -96,15 +108,21 @@
                 </div>
             </div>
             
-            <div class = "top-bar-right">
+            <div class = "top-bar-right" >
                 <!-- Login Button -->
-                <div onclick=sendLoginPage(); class="btn btn-light">
-                    <i class="bi bi-person-circle"></i> Login
-                    <div id="dropdownMenu" class="dropdown">
-                        <button onclick="logout()">Logout</button>
-                    </div>
+              <div id="login-button">
+                    {% if session['username'] is defined %}
+                        <div onclick="logout()" class="btn btn-light">
+                            <i class="bi bi-person-circle"></i> {{ session['username'] }}
+                            <div><button class="btn btn-warning">Logout</button></div>
+                            
+                        </div>
+                    {% else %}
+                        <div onclick=sendLoginPage(); class="btn btn-light">
+                            <i class="bi bi-person-circle"></i> Login
+                        </div>
+                    {% endif %}
                 </div>
-                
                 <!-- shoppingcart Button -->
                 <div onclick="openNav()" class="btn btn-light">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
