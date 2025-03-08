@@ -4,6 +4,7 @@ import os
 import user_transactions
 import login
 import cart
+import product_gallery
 from dotenv import load_dotenv
 import db_connector
 
@@ -18,7 +19,8 @@ PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    assets = product_gallery.get_all_assets()
+    return render_template('index.html', assets=assets)
 
 @app.route('/db-test')
 def db_test():
@@ -37,7 +39,8 @@ def login_data():
     # Process the login data
     result = login.validate_login(username, password)
     if result:
-       return redirect('/')
+       data = {"isLoggedIn": True}
+       return jsonify(data)
     else:
        return redirect('/error-page')
   if request.method == 'GET':
