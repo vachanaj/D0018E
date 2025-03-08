@@ -156,7 +156,7 @@
                             <th>assets_description</th>
                             <th>assets_price</th>
                             <th>assets_quantity</th>
-                            <th>assets_img_addr</th>
+                            <th>assets_img_</th>
                             <th>Delete</th>
                             <th>Save</th>
                         </tr>
@@ -168,7 +168,8 @@
                             <td><input type="text" value="{{ asset.assets_description }}"></td>
                             <td><input type="number" value="{{ asset.assets_price }}"></td>
                             <td><input type="number" value="{{ asset.assets_quantity }}"></td>
-                            <td><input type="text" value="{{ asset.assets_img_addr }}"></td>
+                            <td><input type="text" value="{{ asset.assets_img_name }}"></td>
+
                             <td><button onclick="deleteRow('{{ asset.assets_id }}')">Delete</button></td>
                             <td><button onclick="saveRow('{{ asset.assets_id }}')">Save</button></td>
                         </tr>
@@ -225,7 +226,7 @@ function saveNewRow(button) {
         assets_description: inputs[1].value,
         assets_price: inputs[2].value,
         assets_quantity: inputs[3].value,
-        assets_img_addr: inputs[4].value
+        assets_img_name: inputs[4].value
     };
 
     fetch('/admin/add-asset', {
@@ -281,7 +282,7 @@ function saveRow(assetId) {
         assets_description: inputs[1].value,
         assets_price: inputs[2].value,
         assets_quantity: inputs[3].value,
-        assets_img_addr: inputs[4].value
+        assets_img_name: inputs[4].value
     };
 
     fetch(`/admin/update-asset/${assetId}`, {

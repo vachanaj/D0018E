@@ -58,7 +58,7 @@ def add_asset():
             assets_description = data.get('assets_description')
             assets_price = data.get('assets_price')
             assets_quantity = data.get('assets_quantity')
-            assets_img_addr = data.get('assets_img_addr')
+            assets_img_name = data.get('assets_img_name')
 
             # Validate required fields
             if not all([assets_type, assets_price, assets_quantity]):
@@ -70,9 +70,9 @@ def add_asset():
                 cursor = db.cursor()
                 # Insert the new asset into the database
                 cursor.execute('''
-                    INSERT INTO assets (assets_type, assets_description, assets_price, assets_quantity, assets_img_addr)
+                    INSERT INTO assets (assets_type, assets_description, assets_price, assets_quantity, assets_img_name)
                     VALUES (%s, %s, %s, %s, %s)
-                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_addr))
+                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name))
                 db.commit()
                 cursor.close()
                 return jsonify({"success": True, "message": "Asset added successfully!"}), 201
