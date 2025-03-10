@@ -12,11 +12,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        sessionStorage.clear();
         $(function () {
-            $('[data-toggle="popover"]').popover()
-           
+            $('[data-toggle="popover"]').popover();
+            $('[data-toggle="popover"]').on('mouseout', function () {
+                $(this).popover('hide');
+            });
         })
+
+        function openMenu() {
+        document.getElementById("myMenuSidenav").style.width = "250px";
+        }
+
+        function closeMenu() {
+        document.getElementById("myMenuSidenav").style.width = "0";
+        }
+
         function openNav() {
         document.getElementById("mySidenav").style.width = "250px";
         }
@@ -43,15 +53,14 @@
                });
         }
 
-        function addToCart(button) {
+        function addToCart(div) {
             // Get parent product div
-            let product = button.parentElement.parentElement;
+            let product = div.parentElement.parentElement.parentElement;
             console.log(product);
             // Extract product details
             let productData = {
-                id: product.getAttribute("data-id"),
-                name: product.getAttribute("data-name"),
-                price: product.getAttribute("data-price")
+                productId: product.getAttribute("product-id"),
+                loginUsername: product.getAttribute("login-username"),
             };
 
             // Send product data to Python backend
@@ -70,10 +79,8 @@
             .then(response => response.text())
             .then(data => {
                 console.log(data);
-                document.getElementById('login-button').innerHTML = 
-                '<div onclick=sendLoginPage(); class="btn btn-light">'                            
-                +'<i class="bi bi-person-circle"></i> Login'
-                +'</div>';
+                document.getElementById('full-page').innerHTML = data;
+
                 //document.getElementById('content-page').innerHTML = data;
             });
         }
@@ -83,11 +90,20 @@
 </head>
 <body>
     
-    <div class="full-page">
+    <div class="full-page" id="full-page">
 
         <div class="top-bar">
             <div class = "top-bar-left">
-                <div onclick="buttonClick('hamburgermenu')"><i class="bi bi-list"></i> Menu </div>
+                <div onclick="openMenu('hamburgermenu')"><i class="bi bi-list"></i> Menu </div>
+                <div id="myMenuSidenav" class="sidemenunav">
+                    <div class="sidenav-content">
+                        <a href="javascript:void(0)" class="closebtn" onclick="closeMenu()">&times;</a>
+                        <a href="#">About</a>
+                        <a href="#">Services</a>
+                        <a href="#">Clients</a>
+                        <a href="#">Contact</a>
+                    </div>
+                </div>
                 <div> <a href="/"><img src="/static/images/logo.png" alt="Logo" style="height: 35px;"></a></div>
             </div>
             <!-- Integrated Search Bar -->
@@ -150,19 +166,29 @@
             
             <div id = "product-gallery">
                 {% for asset in assets %}
-                    <div class = "product-card" data-id="1" data-name="Dress" data-price="1200">
+                    <div class = "product-card" product-id="{{ asset[0] }}" login-username="{{ session['username'] }}">
                         
                         <div class = "product-image">
                             <img src="/static/images/{{ asset[5] }}">
-                            
-                                <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Login to add item to cart"  >
-                                    
-                                    <div onclick="addToCart(this)" style="pointer-events: none; padding:0;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16" >
-                                        <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
-                                    </svg>
-                                </div>
-                                </button>
+                                {% if session['username'] is defined %}
+                                    <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Add item to cart"  >
+                                        <div onclick="addToCart(this)" style="padding:0;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16" >
+                                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                                            </svg>
+                                        </div>
+                                    </button>
+                                {% else %}
+                                    <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Login to add item to cart"  >
+                                        <div onclick="addToCart(this)" style="pointer-events: none; padding:0;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16" >
+                                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A
+                                                2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                                            </svg> 
+                                        
+                                        </div>
+                                    </button>
+                                {% endif %}
                             
                             
                         </div>

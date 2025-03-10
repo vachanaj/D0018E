@@ -3,10 +3,11 @@ import stripe
 import os
 import user_transactions
 import cart
+import cart_items
 import product_gallery
 from dotenv import load_dotenv
 import db_connector 
-from login import validate_login, register_admin  # Ensure correct import
+import login  # Ensure correct import
 
 # Load environment variables from .env file
 load_dotenv()
@@ -158,13 +159,13 @@ def add_admin():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login_user():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 
         # Validate login credentials (using your login validation function)
-        user = validate_login(username, password)  # Assuming this function fetches user details from DB
+        user = login.validate_login(username, password)  # Assuming this function fetches user details from DB
         
         if user:
             # Store user information in session
@@ -175,7 +176,9 @@ def login():
             if user['login_role'] == 'admin':
                 return redirect(url_for('admin_page'))  # Redirect to admin page if admin
             else:
-                return redirect(url_for('index'), session=session)  # Redirect normal users to homepage
+                login_id = login.get_login_id(session['username'])
+                cart.create_cart(login_id)  # Get user's cart
+                return redirect(url_for('index', username=user['login_username']))  # Redirect normal users to homepage with session info
             
         else:
             return redirect('/error-page')  # Invalid credentials, redirect to error page
@@ -184,16 +187,22 @@ def login():
 
 @app.route('/logout')
 def logout():
+    cart_id = cart.get_cart_id(login.get_login_id(session['username']))
+    cart_items.clear_cart_items(cart_id)  # Clear user's cart on logout
+    cart.delete_cart(cart_id)  # Delete user's cart on logout
+    
     print("before logout!", session['username'])
     session.pop('username', None)
     session.pop('role', None)
+
+    
     print("Logged out successfully!")
-    return redirect(url_for('index'))  # back to start after logout
+    return redirect('/')  # back to start after logout
 
 @app.route('/')
 def index():
-    
     assets = product_gallery.get_all_assets()
+    print(assets)
     return render_template('index.html', assets=assets)
 
 @app.route('/db-test')
@@ -235,7 +244,7 @@ def register_admin_route():
     username = request.form['username']
     password = request.form['password']
     # Process the login data
-    result = register_admin(first, last, username, password)  # Call the imported function directly
+    result = login.register_admin(first, last, username, password)  # Call the imported function directly
     if result:
       return jsonify({"success": True, "message": "Admin registered successfully"})
     else:
@@ -246,7 +255,10 @@ def add_to_cart():
     data = request.json  # Get product data from frontend
     print("Added to Cart:", data)  # Print to console (or process further)
 
-    cart.add_to_cart(data)
+    product_gallery.decrease_quantity(data['productId'], 1)  # Decrease product quantity
+    login_id = login.get_login_id(data['loginUsername'])  # Get login ID from session
+    cart_id = cart.get_cart_id(login_id)
+    cart_items.add_to_cart(cart_id, data['productId'])  # Add product to cart
     # You can store this in a database or session
     return jsonify({"message": f"{data['name']} added to cart!"})  # Send response
 

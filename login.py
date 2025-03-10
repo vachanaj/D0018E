@@ -59,3 +59,12 @@ def register_admin(first, last, username, password):
     return True
   else:
     return False
+  
+def get_login_id(username):
+  if db.is_connected():
+    cursor = db.cursor()
+    query = "SELECT * FROM login WHERE login_username = %s"
+    cursor.execute(query, (username,))
+    user = cursor.fetchone()
+    cursor.close()
+    return user
