@@ -294,6 +294,8 @@ def shoppingcart():
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
+
+    #yes it does need to be this stupid for some reason, could make it nicer with more time maybe, now it works
     try:
         username = session.get('username')
         if not username:
