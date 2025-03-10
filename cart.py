@@ -2,13 +2,42 @@ import db_connector
 
 db = db_connector.db
 
-def add_to_cart(product_id, user_id):
+def create_cart(user_id):
     if db.is_connected():
         cursor = db.cursor()
-        query = "INSERT INTO cart (cart_product_id, cart_user_id) VALUES (%s, %s)"
-        cursor.execute(query, (product_id, user_id))
+        query = "INSERT INTO cart (cart_login_id) VALUES (%s)"
+        user_id = user_id[0]  
+        cursor.execute(query, (user_id,))
         db.commit()
         cursor.close()
+        print("Cart created")
+        return True
+    else:
+        return False
+    
+def get_cart_id(user_id):
+    if db.is_connected():
+        cursor = db.cursor()
+        query = "SELECT cart_id FROM cart WHERE cart_login_id = %s AND cart_id = (SELECT MAX(cart_id) FROM cart WHERE cart_login_id = %s)"
+        user_id = user_id[0] 
+        cursor.execute(query, (user_id, user_id))
+        cart_id = cursor.fetchone()
+        cursor.close()
+        print("get_cart_id: ", cart_id)
+        return cart_id
+    else:
+        return None
+
+def delete_cart(cart_id):
+    if db.is_connected():
+        print(cart_id)
+        cursor = db.cursor()
+        query = "DELETE FROM cart WHERE cart_id = %s"
+        cart_id = cart_id[0] 
+        cursor.execute(query, (cart_id,))
+        db.commit()
+        cursor.close()
+        print("Cart deleted")
         return True
     else:
         return False
