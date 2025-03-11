@@ -117,29 +117,33 @@
 
             <!-- Remove Reviews Section -->
             <section id="remove-reviews">
-                <h2>Reviews</h2>
-                <table>
+                <h2>Manage Reviews</h2>
+                <table border="1">
                     <thead>
                         <tr>
                             <th>Review ID</th>
-                            <th>Product Name</th>
+                            <th>Username</th>
+                            <th>Asset Description</th>
                             <th>Rating</th>
+                            <th>Comments</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {% for review in reviews %}
                         <tr>
-                            <td>2001</td>
-                            <td>Product A</td>
-                            <td>4.5</td>
-                            <td><button class="btn">Delete</button></td>
+                            <td>{{ review.review_id }}</td>
+                            <td>{{ review.login_id }}</td>
+                            <td>{{ review.assets_id }}</td> 
+                            <td>{{ review.review_asset_rating }}</td>
+                            <td>{{ review.review_asset_comments }}</td>
+                            <td>
+                                <form action="{{ url_for('delete_review', review_id=review.review_id) }}" method="POST">
+                                    <button type="submit" class="delete-button">Delete</button>
+                                </form>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>2002</td>
-                            <td>Product B</td>
-                            <td>3.0</td>
-                            <td><button class="btn">Delete</button></td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </section>
