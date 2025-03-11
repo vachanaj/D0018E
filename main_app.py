@@ -5,6 +5,7 @@ import user_transactions
 import cart
 import cart_items
 import product_gallery
+import reviews
 from dotenv import load_dotenv
 import db_connector 
 import login  # Ensure correct import
@@ -72,9 +73,9 @@ def add_asset():
                 cursor = db.cursor()
                 # Insert the new asset into the database
                 cursor.execute('''
-                    INSERT INTO assets (assets_type, assets_description, assets_price, assets_quantity, assets_img_name)
+                    INSERT INTO assets (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, assets_rating)
                     VALUES (%s, %s, %s, %s, %s)
-                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name))
+                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, 1))
                 db.commit()
                 cursor.close()
                 return jsonify({"success": True, "message": "Asset added successfully!"}), 201
@@ -126,6 +127,7 @@ def login_user():
 @app.route('/logout')
 def logout():
     cart_id = cart.get_cart_id(login.get_login_id(session['username']))
+    print("cart_id", cart_id)
     cart_items.clear_cart_items(cart_id)  # Clear user's cart on logout
     cart.delete_cart(cart_id)  # Delete user's cart on logout
     
@@ -141,7 +143,10 @@ def logout():
 def index():
     assets = product_gallery.get_all_assets()
     print(assets)
+
+    #reviews = reviews.get_all_reviews()
     return render_template('index.html', assets=assets)
+
 
 @app.route('/db-test')
 def db_test():
@@ -166,8 +171,9 @@ def register_user():
     last = request.form['last']
     username = request.form['username']
     password = request.form['password']
+    email = request.form['email']
     # Process the login data
-    result = login.register_user(first, last, username, password)
+    result = login.register_user(first, last, username, password, email)
     if result:
       return redirect('/welcome-page')
     else:
@@ -181,8 +187,9 @@ def register_admin_route():
     last = request.form['last']
     username = request.form['username']
     password = request.form['password']
+    email = request.form['email']
     # Process the login data
-    result = login.register_admin(first, last, username, password)  # Call the imported function directly
+    result = login.register_admin(first, last, username, password, email)  # Call the imported function directly
     if result:
       return jsonify({"success": True, "message": "Admin registered successfully"})
     else:
@@ -193,12 +200,24 @@ def add_to_cart():
     data = request.json  # Get product data from frontend
     print("Added to Cart:", data)  # Print to console (or process further)
 
-    product_gallery.decrease_quantity(data['productId'], 1)  # Decrease product quantity
+    #product_gallery.decrease_quantity(data['productId'], 1)  # Decrease product quantity
     login_id = login.get_login_id(data['loginUsername'])  # Get login ID from session
     cart_id = cart.get_cart_id(login_id)
     cart_items.add_to_cart(cart_id, data['productId'])  # Add product to cart
     # You can store this in a database or session
     return jsonify({"message": f"{data['name']} added to cart!"})  # Send response
+
+@app.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    data = request.json  # Get product data from frontend
+    print("Removed from Cart:", data)  # Print to console (or process further)
+    
+    #product_gallery.increase_quantity(data['productId'], 1)  # Increase product quantity
+    login_id = login.get_login_id(data['loginUsername'])  # Get login ID from session
+    cart_id = cart.get_cart_id(login_id)
+    cart_items.remove_from_cart(cart_id, data['productId'])  # Remove product from cart
+    # You can store this in a database or session
+    return jsonify({"message": f"{data['name']} removed from cart!"})  # Send response
 
 @app.route('/shoppingcart')
 def shoppingcart():

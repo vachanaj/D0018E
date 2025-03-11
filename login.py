@@ -27,7 +27,7 @@ def validate_login(username, password):
         return user  # Return user details instead of just True/False
     return None
   
-def register_user(first, last, username, password):
+def register_user(first, last, username, password, email):
   if db.is_connected():
     cursor = db.cursor()
     # Check if the username already exists
@@ -36,15 +36,15 @@ def register_user(first, last, username, password):
     if cursor.fetchone() is not None:
       cursor.close()
       return False'''
-    query = "INSERT INTO login (login_first_name, login_last_name, login_username, login_password, login_role) VALUES (%s, %s, %s, %s, 'customer')"
-    cursor.execute(query, (first, last, username, password))
+    query = "INSERT INTO login (login_first_name, login_last_name, login_username, login_password, login_email login_role) VALUES (%s, %s, %s, %s, %s, 'customer')"
+    cursor.execute(query, (first, last, username, password, email))
     db.commit()
     cursor.close()
     return True
   else:
     return False
 
-def register_admin(first, last, username, password):
+def register_admin(first, last, username, password, email):
   if db.is_connected():
     cursor = db.cursor()
     '''query = "SELECT * FROM login WHERE login_username = %s"
@@ -52,8 +52,8 @@ def register_admin(first, last, username, password):
     if cursor.fetchone() is not None:
       cursor.close()
       return False'''
-    query = "INSERT INTO login (login_first_name, login_last_name, login_username, login_password, login_role) VALUES (%s, %s, %s, %s, 'admin')"
-    cursor.execute(query, (first, last, username, password))
+    query = "INSERT INTO login (login_first_name, login_last_name, login_username, login_password, login_email, login_role) VALUES (%s, %s, %s, %s, %s, 'admin')"
+    cursor.execute(query, (first, last, username, password, email))
     db.commit()
     cursor.close()
     return True

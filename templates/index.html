@@ -7,6 +7,7 @@
  
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Clothing Store</title>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
@@ -61,7 +62,10 @@
             let productData = {
                 productId: product.getAttribute("product-id"),
                 loginUsername: product.getAttribute("login-username"),
+                productImage: product.getAttribute("product-image"),
+                productName: product.getAttribute("product-name")
             };
+
 
             // Send product data to Python backend
             fetch('/add_to_cart', {
@@ -72,6 +76,38 @@
             .then(response => response.json())
             .then(data => alert(data.message)) // Show success message
             .catch(error => console.error("Error:", error));
+
+            document.getElementById('cart-items').innerHTML += `
+                <tr class="cart-row-item">
+                    <td><img src="/static/images/${productData.productImage}" style="width: 50px;"></td>
+                    <td><h5>${productData.productName}</h5></td>
+                    <td><h5>1</h5></td>
+                    <td><a href="#" class="text-danger" onclick="removeItem(${productData.productId})"><i class="fas fa-trash-alt"></i></a></td>
+                </tr>
+            `;
+        }
+
+        function removeItem(productId) {
+            console.log("product_id:"+ productId);
+            
+            // Send product data to Python backend
+            fetch('/remove_from_cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message)) // Show success message
+            .catch(error => console.error("Error:", error));
+
+            document.getElementById('cart-items').innerHTML -= `
+                <tr class="cart-row-item">
+                    <td><img src="/static/images/${productData.productImage}" style="width: 50px;"></td>
+                    <td><h5>${productData.productName}</h5></td>
+                    <td><h5>1</h5></td>
+                    <td><a href="#" class="text-danger" onclick="removeItem(${productData.productId})"><i class="fas fa-trash-alt"></i></a></td>
+                </tr>
+            `;
         }
 
         function logout() {
@@ -84,7 +120,25 @@
                 //document.getElementById('content-page').innerHTML = data;
             });
         }
-        
+
+        function getProductReview(div){
+            let product = div.parentElement.parentElement.parentElement;
+            console.log(product);
+            // Extract product details
+            let productData = {
+                productId: product.getAttribute("product-id")
+                
+            };
+            // Send product data to Python backend
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message)) // Show success message
+            .catch(error => console.error("Error:", error));          
+        }
 
     </script>
 </head>
@@ -130,7 +184,7 @@
                     {% if session['username'] is defined %}
                         <div onclick="logout()" class="btn btn-light">
                             <i class="bi bi-person-circle"></i> {{ session['username'] }}
-                            <div><button class="btn btn-warning">Logout</button></div>
+                            <div><button class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button></div>
                             
                         </div>
                     {% else %}
@@ -140,21 +194,43 @@
                     {% endif %}
                 </div>
                 <!-- shoppingcart Button -->
-                <div onclick="openNav()" class="btn btn-light">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
-                        <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
-                    </svg>
-                </div>
+                {% if session['username'] is defined %}
+                <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="View cart"  >
+                    <div onclick="openNav()" class="btn btn-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                            <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                        </svg>
+                    </div>
+                </button>
+
+                {% else %}
+                <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Login to add item to cart"  >
+                    <div onclick="openNav()" class="btn btn-light">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                            <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                        </svg>
+                    </div>
+                </button>
+                {% endif %}
             </div>
         </div>
 
         <div id="mySidenav" class="sidenav">
             <div class="sidenav-content">
                 <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-                <a href="#">About</a>
-                <a href="#">Services</a>
-                <a href="#">Clients</a>
-                <a href="#">Contact</a>
+                
+                <table class="table table-striped">
+                    
+                    <tbody id = "cart-items">
+                        
+                    </tbody>
+                </table>
+                
+                
+                <div class="d-flex justify-content-between">
+                    <p class="mb-2">Subtotal</p>
+                    <p class="mb-2" id="subtotal">$0.00</p>
+                </div>
                 <a href ="/shoppingcart"> <button class="btn btn-light" style="position:absolute; bottom:10px; left:15%; background-color: #f7d9e2;"> Continue to checkout </button> </a>
             </div>
         </div>
@@ -166,7 +242,7 @@
             
             <div id = "product-gallery">
                 {% for asset in assets %}
-                    <div class = "product-card" product-id="{{ asset[0] }}" login-username="{{ session['username'] }}">
+                    <div class = "product-card" product-id="{{ asset[0] }}" login-username="{{ session['username'] }}" product-image="{{ asset[5] }}" product-name="{{ asset[2] }}" >
                         
                         <div class = "product-image">
                             <img src="/static/images/{{ asset[5] }}">
@@ -195,7 +271,10 @@
                         <div class = "product-info">
                             <h4>{{ asset[2] }}</h4>
                             <p>{{ asset[3] }} kr</p>
-
+                            <div class="product-rating">
+                                <strong>{{ asset[6] }}:</strong> {{ '❤️' * asset[6] }} {{ '🤍' * (5 - asset[6]) }}
+                            </div>
+                            
                         </div>
                     </div>
                 {% endfor %}

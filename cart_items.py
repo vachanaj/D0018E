@@ -28,7 +28,7 @@ def get_cart_items(cart_id):
         query = '''
             SELECT assets_id, assets_type, assets_description, assets_price, assets_quantity, assets_img_name, cart_items_assets_quantity
             FROM cart_items
-            JOIN assets ON cart_items.cart_items_assets_id = assets.assets_id
+            JOIN new_assets ON cart_items.cart_items_assets_id = assets.assets_id
             WHERE cart_items_cart_id = %s
         '''
         cursor.execute(query, (cart_id,))
@@ -49,11 +49,12 @@ def update_cart_item(cart_id, asset_id, quantity):
     else:
         return False
     
-def delete_cart_item(cart_id, asset_id):
+def remove_from_cart(cart_id, asset_id):
     if db.is_connected():
         cursor = db.cursor()
         query = "DELETE FROM cart_items WHERE cart_items_cart_id = %s AND cart_items_assets_id = %s"
-        cursor.execute(query, (int(cart_id), (int(asset_id))) )
+        cart_id = cart_id[0] 
+        cursor.execute(query, (cart_id, asset_id))
         db.commit()
         cursor.close()
         return True 
@@ -62,13 +63,16 @@ def delete_cart_item(cart_id, asset_id):
 
 def clear_cart_items(cart_id):
     if db.is_connected():
-        cursor = db.cursor()
-        query = "DELETE FROM cart_items WHERE cart_items_cart_id = %s"
-        cart_id = cart_id[0] 
-        cursor.execute(query, (cart_id,))
-        db.commit()
-        cursor.close()
-        print("Cart items cleared")
-        return True 
+        try:
+            cursor = db.cursor()
+            query = "DELETE FROM cart_items WHERE cart_items_cart_id = %s"
+            cart_id = cart_id[0] 
+            cursor.execute(query, (cart_id,))
+            db.commit()
+            cursor.close()
+            print("Cart items cleared")
+            return True 
+        except:
+            return False
     else:
         return False    
