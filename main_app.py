@@ -46,7 +46,7 @@ def admin_page():
             return "An error occurred while fetching assets.", 500
     return redirect(url_for('login'))  # Redirect to login if not an admin
 
-# Add/remove Asset Route
+# Add Asset Route
 @app.route('/admin/add-asset', methods=['POST'])
 def add_asset():
     if 'username' in session and session['role'] == 'admin':
@@ -86,8 +86,70 @@ def add_asset():
             return jsonify({"success": False, "message": "An error occurred while adding the asset"}), 500
     return jsonify({"success": False, "message": "Unauthorized"}), 401
 
+#delete asset route
+@app.route('/admin/delete-asset/<int:assetId>', methods=['POST'])
+def delete_asset(assetId):
+    if 'username' in session and session['role'] == 'admin':
+        try:
+            # Get the database connection from db_connector
+            db = db_connector.db
+            if db and db.is_connected():
+                cursor = db.cursor()
 
+                # Delete the asset from the database
+                cursor.execute('DELETE FROM assets WHERE assets_id = %s', (assetId,))
+                db.commit()
+                cursor.close()
+                return jsonify({"success": True, "message": "Asset deleted successfully!"}), 200
+            else:
+                return jsonify({"success": False, "message": "Database connection failed"}), 500
+        except Exception as e:
+            print(f"Error deleting asset: {e}")
+            return jsonify({"success": False, "message": "An error occurred while deleting the asset"}), 500
+    return jsonify({"success": False, "message": "Unauthorized"}), 401
 
+#Update asset route
+@app.route('/admin/update-asset/<int:assetId>', methods=['POST'])
+def update_asset(assetId):
+    if 'username' in session and session['role'] == 'admin':
+        try:
+            # Get the data from the request (sent as JSON)
+            data = request.json
+            print("Received data for update:", data)  # Debugging: Print received data
+            if not data:
+                return jsonify({"success": False, "message": "No data provided"}), 400
+
+            # Extract fields from the data
+            assets_type = data.get('assets_type')
+            assets_description = data.get('assets_description')
+            assets_price = data.get('assets_price')
+            assets_quantity = data.get('assets_quantity')
+            assets_img_name = data.get('assets_img_name')
+
+            # Validate required fields
+            if not all([assets_type, assets_price, assets_quantity]):
+                return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+            # Get the database connection from db_connector
+            db = db_connector.db
+            if db and db.is_connected():
+                cursor = db.cursor()
+
+                # Update the asset in the database
+                cursor.execute('''
+                    UPDATE assets 
+                    SET assets_type = %s, assets_description = %s, assets_price = %s, assets_quantity = %s, assets_img_name = %s
+                    WHERE assets_id = %s
+                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, assetId))
+                db.commit()
+                cursor.close()
+                return jsonify({"success": True, "message": "Asset updated successfully!"}), 200
+            else:
+                return jsonify({"success": False, "message": "Database connection failed"}), 500
+        except Exception as e:
+            print(f"Error updating asset: {e}")  # Debugging: Print the error
+            return jsonify({"success": False, "message": "An error occurred while updating the asset"}), 500
+    return jsonify({"success": False, "message": "Unauthorized"}), 401
 
 @app.route('/admin/add-admin')
 def add_admin():
@@ -223,34 +285,111 @@ def remove_from_cart():
 def shoppingcart():
     return render_template('shoppingcart.html', public_key=PUBLIC_KEY)
 
+# @app.route('/create-checkout-session', methods=['POST'])
+# def create_checkout_session():
+#     try:
+#         session = stripe.checkout.Session.create(
+#             payment_method_types=['card'],
+#             line_items=[
+#                 {
+#                     'price_data': {
+#                         'currency': 'usd',
+#                         'product_data': {
+#                             'name': 'Sample Item'
+#                         },
+#                         'unit_amount': 2000,  # $20.00 in cents
+#                     },
+#                     'quantity': 1,
+#                 },
+#             ],
+#             mode='payment',
+#             success_url=request.host_url + 'checkout-success',
+#             cancel_url=request.host_url + 'shoppingcart',
+#         )
+#         return jsonify({'url': session.url})
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
+
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
+
+    #yes it does need to be this stupid for some reason, could make it nicer with more time maybe, now it works
     try:
-        session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': 'Sample Item'
-                        },
-                        'unit_amount': 2000,  # $20.00 in cents
+        username = session.get('username')
+        if not username:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        login_id = login.get_login_id(username)
+        cart_id_tuple = cart.get_cart_id(login_id)
+        cart_id = cart_id_tuple[0] if isinstance(cart_id_tuple, tuple) else cart_id_tuple
+
+        if not cart_id or not isinstance(cart_id, int):
+            return jsonify({'error': 'Invalid cart ID'}), 400
+
+        conn = db_connector.db  # Use the MySQL connection from db_connector
+        cursor = conn.cursor()
+
+        # Fetch cart items for the current user
+        cursor.execute("""
+            SELECT a.assets_id, a.assets_description, a.assets_price, c.cart_items_assets_quantity
+            FROM cart_items c
+            JOIN assets a ON c.cart_items_assets_id = a.assets_id
+            WHERE c.cart_items_cart_id = %s
+        """, (cart_id,))  # ✅ Ensure cart_id is a single integer, not a tuple
+
+        cart_items = cursor.fetchall()
+
+        if not cart_items:
+            return jsonify({'error': 'No items in cart'}), 400
+
+        line_items = []
+        for item in cart_items:
+            line_items.append({
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': item[1],  # assets_desc
                     },
-                    'quantity': 1,
+                    'unit_amount': int(item[2] * 100),  # assets_price in cents
                 },
-            ],
+                'quantity': item[3],  # cart_items_assets_quantity
+            })
+
+        stripe_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=line_items,
             mode='payment',
             success_url=request.host_url + 'checkout-success',
             cancel_url=request.host_url + 'shoppingcart',
         )
-        return jsonify({'url': session.url})
+
+        cursor.close()
+        return jsonify({'url': stripe_session.url})
     except Exception as e:
+        print(f"Error creating checkout session: {e}")  # Log the error
         return jsonify({'error': str(e)}), 500
+
+
 
 @app.route('/checkout-success')
 def checkout_success():
+    if 'username' in session:
+        try:
+            # Get the cart ID for the logged-in user
+            cart_id = cart.get_cart_id(login.get_login_id(session['username']))
+            
+            # Clear the cart items and delete the cart
+            cart_items.clear_cart_items(cart_id)
+            cart.delete_cart(cart_id)
+
+            print(f"Cart cleared for user: {session['username']}")
+        
+        except Exception as e:
+            print(f"Error clearing cart after checkout: {e}")
+
     return "Checkout Successful! Thank you for your purchase."
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

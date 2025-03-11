@@ -133,16 +133,30 @@
 
 <script>
   document.getElementById('checkout-button').addEventListener('click', function () {
-      fetch('/create-checkout-session', { method: 'POST' })
-          .then(response => response.json())
-          .then(data => {
-              if (data.url) {
-                  window.location.href = data.url;  // Redirect to Stripe
-              } else {
-                  alert('Error processing payment.');
-              }
-          })
-          .catch(error => console.error('Error:', error));
+      fetch('/create-checkout-session', {
+          method: 'POST',  // Ensure this is set to POST
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({})  // Send an empty body or required data
+      })
+      .then(response => {
+          if (!response.ok) {
+              return response.json().then(err => { throw err; });
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (data.url) {
+              window.location.href = data.url;  // Redirect to Stripe
+          } else {
+              alert('Error processing payment: ' + (data.error || 'Unknown error'));
+          }
+      })
+      .catch(error => {
+          console.error('Error:', error);
+          alert('Error processing payment: ' + (error.error || 'Unknown error'));
+      });
   });
 </script>
 </body>
