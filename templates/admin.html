@@ -153,7 +153,7 @@
                         <tr>
                            
                             <th>assets_type</th>
-                            <th>assets_description</th>
+                            <th>assets_desc</th>
                             <th>assets_price</th>
                             <th>assets_quantity</th>
                             <th>assets_img_name</th>
@@ -165,11 +165,10 @@
                         {% for asset in assets %}
                         <tr data-asset-id="{{ asset.assets_id }}">
                             <td><input type="text" value="{{ asset.assets_type }}"></td>
-                            <td><input type="text" value="{{ asset.assets_description }}"></td>
+                            <td><input type="text" value="{{ asset.assets_desc }}"></td>
                             <td><input type="number" value="{{ asset.assets_price }}"></td>
                             <td><input type="number" value="{{ asset.assets_quantity }}"></td>
                             <td><input type="text" value="{{ asset.assets_img_name }}"></td>
-
                             <td><button onclick="deleteRow('{{ asset.assets_id }}')">Delete</button></td>
                             <td><button onclick="saveRow('{{ asset.assets_id }}')">Save</button></td>
                         </tr>
@@ -223,10 +222,11 @@ function saveNewRow(button) {
     const inputs = row.querySelectorAll('input');
     const data = {
         assets_type: inputs[0].value,
-        assets_description: inputs[1].value,
+        assets_desc: inputs[1].value,
         assets_price: inputs[2].value,
         assets_quantity: inputs[3].value,
-        assets_img_name: inputs[4].value
+        assets_img_name: inputs[4].value,
+        assets_rating: 4  // Always set to 4
     };
 
     fetch('/admin/add-asset', {
@@ -283,10 +283,11 @@ function saveRow(assetId) {
     const inputs = row.querySelectorAll('input');
     const data = {
         assets_type: inputs[0].value,
-        assets_description: inputs[1].value,
+        assets_desc: inputs[1].value,
         assets_price: inputs[2].value,
         assets_quantity: inputs[3].value,
-        assets_img_name: inputs[4].value
+        assets_img_name: inputs[4].value,
+        assets_rating: 4  // Always set to 4
     };
     console.log("Data to update:", data);  // Debugging: Print data to update
 
