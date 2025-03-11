@@ -63,10 +63,10 @@
                 productId: product.getAttribute("product-id"),
                 loginUsername: product.getAttribute("login-username"),
                 productImage: product.getAttribute("product-image"),
-                productName: product.getAttribute("product-name")
+                productName: product.getAttribute("product-name"),
             };
 
-
+            console.log(productData);
             // Send product data to Python backend
             fetch('/add_to_cart', {
                 method: 'POST',
@@ -141,7 +141,9 @@
         }
 
         function continueToCheckout() {
-            document.getElementById('checkout-button').addEventListener('click', function () {
+            console.log("continue to checkout in html called");
+            //document.getElementById('checkout-button').addEventListener('click', function () {
+                
                 fetch('/create-checkout-session', {
                     method: 'POST',  // Ensure this is set to POST
                     headers: {
@@ -166,7 +168,7 @@
                     console.error('Error:', error);
                     alert('Error processing payment: ' + (error.error || 'Unknown error'));
                 });
-            });
+            //}); 
         }
 
     </script>
@@ -224,22 +226,22 @@
                 </div>
                 <!-- shoppingcart Button -->
                 {% if session['username'] is defined %}
-                <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="View cart"  >
-                    <div onclick="openNav()" class="btn btn-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
-                            <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
-                        </svg>
-                    </div>
-                </button>
+                    <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="View cart"  >
+                        <div onclick="openNav()" class="btn btn-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                            </svg>
+                        </div>
+                    </button>
 
                 {% else %}
-                <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Login to add item to cart"  >
-                    <div onclick="openNav()" class="btn btn-light">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
-                            <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
-                        </svg>
-                    </div>
-                </button>
+                    <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="Login to add item to cart"  >
+                        <div onclick="openNav()" class="btn btn-light" style="pointer-events: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
+                                <path d="M11.5 4v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m0 6.993c1.664-1.711 5.825 1.283 0 5.132-5.825-3.85-1.664-6.843 0-5.132"/>
+                            </svg>
+                        </div>
+                    </button>
                 {% endif %}
             </div>
         </div>
@@ -260,8 +262,9 @@
                     <p class="mb-2">Subtotal</p>
                     <p class="mb-2" id="subtotal">$0.00</p>
                 </div>
-                <a> <button class="btn btn-light" id="checkout-button" style="position:absolute; bottom:10px; left:15%; background-color: #f7d9e2;"> Continue to checkout </button> </a>
+                <div class="btn btn-light" onclick="continueToCheckout()" id="checkout-button1" style="position:absolute; bottom:10px; left:15%; background-color: #f7d9e2;"> Continue to checkout </div>
             </div>
+
         </div>
 
             

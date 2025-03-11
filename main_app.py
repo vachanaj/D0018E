@@ -267,7 +267,7 @@ def add_to_cart():
     cart_id = cart.get_cart_id(login_id)
     cart_items.add_to_cart(cart_id, data['productId'])  # Add product to cart
     # You can store this in a database or session
-    return jsonify({"message": f"{data['name']} added to cart!"})  # Send response
+    return jsonify({"message": f"{data['productName']} added to cart!"})  # Send response
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
@@ -313,7 +313,7 @@ def shoppingcart():
 
 @app.route('/create-checkout-session', methods=['POST'])
 def create_checkout_session():
-
+    
     #yes it does need to be this stupid for some reason, could make it nicer with more time maybe, now it works
     try:
         username = session.get('username')
@@ -332,7 +332,7 @@ def create_checkout_session():
 
         # Fetch cart items for the current user
         cursor.execute("""
-            SELECT a.assets_id, a.assets_description, a.assets_price, c.cart_items_assets_quantity
+            SELECT a.assets_id, a.assets_desc, a.assets_price, c.cart_items_assets_quantity
             FROM cart_items c
             JOIN assets a ON c.cart_items_assets_id = a.assets_id
             WHERE c.cart_items_cart_id = %s
