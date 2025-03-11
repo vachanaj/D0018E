@@ -1,18 +1,4 @@
-INSERT INTO new_assets (
-    assets_id,
-    assets_type,
-    assets_desc,
-    assets_price,
-    assets_quantity,
-    assets_img_name,
-    assets_rating
-  )
-VALUES (
-    1,
-    'dress',
-    'Pink Cocktail Dress',
-    21.99,
-    100,
-    'pink_cocktail_dress.jpg',
-    4
-  );
+INSERT INTO login (login_role, login_username, login_password, login_first_name, login_last_name, login_email)
+VALUES 
+('admin', 'Irma1', 'admin', 'Irma', 'PH', 'admin1@example.com'),
+('customer', 'Vachana1', 'customer', 'Vachana', 'J', 'customer1@example.com');

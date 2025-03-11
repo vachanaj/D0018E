@@ -140,6 +140,35 @@
             .catch(error => console.error("Error:", error));          
         }
 
+        function continueToCheckout() {
+            document.getElementById('checkout-button').addEventListener('click', function () {
+                fetch('/create-checkout-session', {
+                    method: 'POST',  // Ensure this is set to POST
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({})  // Send an empty body or required data
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.url) {
+                        window.location.href = data.url;  // Redirect to Stripe
+                    } else {
+                        alert('Error processing payment: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error processing payment: ' + (error.error || 'Unknown error'));
+                });
+            });
+        }
+
     </script>
 </head>
 <body>
@@ -231,7 +260,7 @@
                     <p class="mb-2">Subtotal</p>
                     <p class="mb-2" id="subtotal">$0.00</p>
                 </div>
-                <a href ="/shoppingcart"> <button class="btn btn-light" style="position:absolute; bottom:10px; left:15%; background-color: #f7d9e2;"> Continue to checkout </button> </a>
+                <a> <button class="btn btn-light" id="checkout-button" style="position:absolute; bottom:10px; left:15%; background-color: #f7d9e2;"> Continue to checkout </button> </a>
             </div>
         </div>
 
