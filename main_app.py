@@ -49,7 +49,6 @@ def admin_page():
             return "An error occurred while fetching assets.", 500
     return redirect(url_for('login'))  # Redirect to login if not an admin
 
-# Add Asset Route
 @app.route('/admin/add-asset', methods=['POST'])
 def add_asset():
     if 'username' in session and session['role'] == 'admin':
@@ -61,13 +60,20 @@ def add_asset():
 
             # Extract fields from the data
             assets_type = data.get('assets_type')
-            assets_description = data.get('assets_description')
+            assets_desc = data.get('assets_desc')
             assets_price = data.get('assets_price')
             assets_quantity = data.get('assets_quantity')
             assets_img_name = data.get('assets_img_name')
+            assets_rating = data.get('assets_rating') 
+
+            # Ensure assets_rating is an integer (prevents errors)
+            try:
+                assets_rating = int(assets_rating)
+            except ValueError:
+                return jsonify({"success": False, "message": "Invalid assets_rating value"}), 400
 
             # Validate required fields
-            if not all([assets_type, assets_price, assets_quantity]):
+            if not all([assets_type, assets_price, assets_quantity, assets_rating]):
                 return jsonify({"success": False, "message": "Missing required fields"}), 400
 
             # Get the database connection from db_connector
@@ -76,9 +82,9 @@ def add_asset():
                 cursor = db.cursor()
                 # Insert the new asset into the database
                 cursor.execute('''
-                    INSERT INTO assets (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, assets_rating)
-                    VALUES (%s, %s, %s, %s, %s)
-                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, 1))
+                    INSERT INTO assets (assets_type, assets_desc, assets_price, assets_quantity, assets_img_name, assets_rating)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                ''', (assets_type, assets_desc, assets_price, assets_quantity, assets_img_name, assets_rating))
                 db.commit()
                 cursor.close()
                 return jsonify({"success": True, "message": "Asset added successfully!"}), 201
@@ -88,6 +94,7 @@ def add_asset():
             print(f"Error adding asset: {e}")
             return jsonify({"success": False, "message": "An error occurred while adding the asset"}), 500
     return jsonify({"success": False, "message": "Unauthorized"}), 401
+
 
 #delete asset route
 @app.route('/admin/delete-asset/<int:assetId>', methods=['POST'])
@@ -124,7 +131,7 @@ def update_asset(assetId):
 
             # Extract fields from the data
             assets_type = data.get('assets_type')
-            assets_description = data.get('assets_description')
+            assets_desc = data.get('assets_desc')
             assets_price = data.get('assets_price')
             assets_quantity = data.get('assets_quantity')
             assets_img_name = data.get('assets_img_name')
@@ -141,9 +148,9 @@ def update_asset(assetId):
                 # Update the asset in the database
                 cursor.execute('''
                     UPDATE assets 
-                    SET assets_type = %s, assets_description = %s, assets_price = %s, assets_quantity = %s, assets_img_name = %s
+                    SET assets_type = %s, assets_desc = %s, assets_price = %s, assets_quantity = %s, assets_img_name = %s
                     WHERE assets_id = %s
-                ''', (assets_type, assets_description, assets_price, assets_quantity, assets_img_name, assetId))
+                ''', (assets_type, assets_desc, assets_price, assets_quantity, assets_img_name, assetId))
                 db.commit()
                 cursor.close()
                 return jsonify({"success": True, "message": "Asset updated successfully!"}), 200
@@ -204,13 +211,26 @@ def logout():
     print("Logged out successfully!")
     return redirect('/')  # back to start after logout
 
+#@app.route('/')
+#def index():
+#    assets = product_gallery.get_all_assets()
+#    print(assets)
+
+#    #reviews = reviews.get_all_reviews()
+#    return render_template('index.html', assets=assets)
+
+#@app.route('/')
+#def index():
+#    assets = product_gallery.get_all_assets()
+#    reviews_data = reviews.get_all_reviews()  # Fetch reviews
+#    return render_template('index.html', assets=assets, reviews=reviews_data)
+
 @app.route('/')
 def index():
     assets = product_gallery.get_all_assets()
-    print(assets)
-
-    #reviews = reviews.get_all_reviews()
-    return render_template('index.html', assets=assets)
+    reviews_by_asset = reviews.get_all_reviews()  # Now it's grouped by asset_id
+    
+    return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset)
 
 
 @app.route('/db-test')

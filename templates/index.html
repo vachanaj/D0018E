@@ -297,19 +297,32 @@
                                         </div>
                                     </button>
                                 {% endif %}
-                            
-                            
+                             
                         </div>
-                        <div class = "product-info">
+                        
+                        <div class="product-info">
                             <h4>{{ asset[2] }}</h4>
                             <p>{{ asset[3] }} kr</p>
-                            <div class="product-rating">
-                                <strong>{{ asset[6] }}:</strong> {{ '❤️' * asset[6] }} {{ '🤍' * (5 - asset[6]) }}
-                            </div>
-                            
+            
+                            {% if asset[0] in reviews_by_asset %}
+                                {% for review in reviews_by_asset[asset[0]] %}
+                                    <div class="product-rating">
+                                        <strong>{{ review.review_asset_rating }}:</strong> 
+                                        {{ '❤️' * review.review_asset_rating }} {{ '🤍' * (5 - review.review_asset_rating) }}
+                                        <p class="review-text">{{ review.review_asset_comments }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>No reviews yet.</p>
+                            {% endif %}
+            
                         </div>
                     </div>
                 {% endfor %}
+                 
+                
+
+
             </div>
             
         </div>
