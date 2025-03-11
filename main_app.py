@@ -208,13 +208,26 @@ def logout():
     print("Logged out successfully!")
     return redirect('/')  # back to start after logout
 
+#@app.route('/')
+#def index():
+#    assets = product_gallery.get_all_assets()
+#    print(assets)
+
+#    #reviews = reviews.get_all_reviews()
+#    return render_template('index.html', assets=assets)
+
+#@app.route('/')
+#def index():
+#    assets = product_gallery.get_all_assets()
+#    reviews_data = reviews.get_all_reviews()  # Fetch reviews
+#    return render_template('index.html', assets=assets, reviews=reviews_data)
+
 @app.route('/')
 def index():
     assets = product_gallery.get_all_assets()
-    print(assets)
-
-    #reviews = reviews.get_all_reviews()
-    return render_template('index.html', assets=assets)
+    reviews_by_asset = reviews.get_all_reviews()  # Now it's grouped by asset_id
+    
+    return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset)
 
 
 @app.route('/db-test')
