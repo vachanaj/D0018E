@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Your Purchase</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .star-rating {
+            display: flex;
+            gap: 5px;
+        }
+        .star-rating input[type="radio"] {
+            display: none;
+        }
+        .star-rating label {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+        .star-rating input[type="radio"]:checked ~ label {
+            color: #f8238d;
+        }
+
+
+    </style>
+</head>
+<body>
+    <h1>Review Your Purchase</h1>
+    <p>Thank you for your purchase! Please leave a review for each product below.</p>
+
+    <table id="reviewTable">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Review</th>
+                <th>Star Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Example row, dynamically populated from the backend -->
+            <tr>
+                <td>Product 1</td>
+                <td><textarea rows="2" cols="30" placeholder="Write your review here..."></textarea></td>
+                <td>
+                    <div class="star-rating">
+                        <input type="radio" id="product1-star5" name="product1-rating" value="5">
+                        <label for="product1-star5">★</label>
+                        <input type="radio" id="product1-star4" name="product1-rating" value="4">
+                        <label for="product1-star4">★</label>
+                        <input type="radio" id="product1-star3" name="product1-rating" value="3">
+                        <label for="product1-star3">★</label>
+                        <input type="radio" id="product1-star2" name="product1-rating" value="2">
+                        <label for="product1-star2">★</label>
+                        <input type="radio" id="product1-star1" name="product1-rating" value="1">
+                        <label for="product1-star1">★</label>
+                    </div>
+                </td>
+            </tr>
+            <!-- Add more rows dynamically based on the user's order -->
+        </tbody>
+    </table>
+
+    <button id="submitReview">Submit Reviews</button>
+
+    <script>
+        document.getElementById('submitReview').addEventListener('click', function () {
+            const rows = document.querySelectorAll('#reviewTable tbody tr');
+            const reviews = [];
+
+            rows.forEach(row => {
+                const productName = row.querySelector('td').innerText;
+                const reviewText = row.querySelector('textarea').value;
+                const rating = row.querySelector('input[type="radio"]:checked')?.value;
+
+                if (reviewText && rating) {
+                    reviews.push({
+                        productName,
+                        reviewText,
+                        rating
+                    });
+                }
+            });
+
+            if (reviews.length > 0) {
+                // Send reviews to the backend
+                fetch('/submit-reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reviews)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Thank you for your reviews!');
+                    window.location.href = '/'; // Redirect to homepage or order history
+                })
+                .catch(error => {
+                    console.error('Error submitting reviews:', error);
+                });
+            } else {
+                alert('Please fill out at least one review before submitting.');
+            }
+        });
+    </script>
+</body>
+</html>

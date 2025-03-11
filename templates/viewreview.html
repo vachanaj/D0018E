@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Review</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .review-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .stars {
+            display: flex;
+            gap: 5px;
+        }
+        .stars input {
+            display: none;
+        }
+        .stars label {
+            font-size: 2em;
+            color: lightgray;
+            cursor: pointer;
+        }
+        .stars input:checked ~ label,
+        .stars input:checked ~ label ~ label {
+            color: gold;
+        }
+        .stars input:hover ~ label,
+        .stars input:hover ~ label ~ label {
+            color: gold;
+        }
+    </style>
+</head>
+<body>
+    <div class="review-container">
+        <h1>Product Review</h1>
+        <form action="/submit-review" method="post">
+            <div class="stars">
+                <input type="radio" id="star5" name="rating" value="5"><label for="star5">&#9733;</label>
+                <input type="radio" id="star4" name="rating" value="4"><label for="star4">&#9733;</label>
+                <input type="radio" id="star3" name="rating" value="3"><label for="star3">&#9733;</label>
+                <input type="radio" id="star2" name="rating" value="2"><label for="star2">&#9733;</label>
+                <input type="radio" id="star1" name="rating" value="1"><label for="star1">&#9733;</label>
+            </div>
+            <div>
+                <label for="review">Your Review:</label>
+                <textarea id="review" name="review" rows="4" maxlength="300" placeholder="Write your review here (max 300 words)"></textarea>
+            </div>
+            <div>
+                <button type="submit">Submit Review</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
