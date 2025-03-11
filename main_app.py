@@ -5,7 +5,10 @@ import user_transactions
 import cart
 import cart_items
 import product_gallery
+import orders
+import order_items
 import reviews
+import datetime
 from dotenv import load_dotenv
 import db_connector 
 import login  # Ensure correct import
@@ -257,7 +260,7 @@ def register_admin_route():
     else:
       return jsonify({"success": False, "message": "Failed to register admin"})
 
-@app.route('/add_to_cart', methods=['POST'])
+@app.route('/add_to_cart', methods=['GET', 'POST'])
 def add_to_cart():
     data = request.json  # Get product data from frontend
     print("Added to Cart:", data)  # Print to console (or process further)
@@ -324,6 +327,8 @@ def create_checkout_session():
         cart_id_tuple = cart.get_cart_id(login_id)
         cart_id = cart_id_tuple[0] if isinstance(cart_id_tuple, tuple) else cart_id_tuple
 
+        #cartItems = cart_items.get_cart_items(cart_id)
+               
         if not cart_id or not isinstance(cart_id, int):
             return jsonify({'error': 'Invalid cart ID'}), 400
 
@@ -343,8 +348,21 @@ def create_checkout_session():
         if not cart_items:
             return jsonify({'error': 'No items in cart'}), 400
 
+        total_price = 0  # Initialize total_price
+            
+         
+        
         line_items = []
         for item in cart_items:
+            assetId = item[0]
+            itemQuantity = item[3]
+            inStock = product_gallery.check_quantity(assetId, itemQuantity)
+            if not inStock:
+                return jsonify({'error': 'Item out of stock'}), 400
+            else:
+                print("Decreasing quantity for assetId:", assetId)
+                product_gallery.decrease_quantity(assetId, itemQuantity)
+
             line_items.append({
                 'price_data': {
                     'currency': 'usd',
@@ -364,7 +382,33 @@ def create_checkout_session():
             cancel_url=request.host_url + 'shoppingcart',
         )
 
+        print("stripe_session created")
+        
+        for item in cart_items:
+            assetId = item[0]
+            itemQuantity = item[3]
+
+            assetPrice = product_gallery.get_asset_price(assetId)
+            total_asset_price = assetPrice[0] * itemQuantity
+            total_price += total_asset_price
+            print("Total price:", total_price)
+
+        # Add order to the database
+        # orders.create_order(login_id, total_price, datetime.datetime.now())
+        # print("Order created successfully!")
+        # order_id = orders.get_order_id(login_id)
+
+        # for item in cart_items:
+        #     assetId = item[0]
+        #     itemQuantity = item[3]
+        #     assetPrice = product_gallery.get_asset_price(assetId)
+        #     order_items.add_order_item(order_id, assetId, itemQuantity, assetPrice)
+        #     print("Order item added successfully!")
+
+        
+        
         cursor.close()
+
         return jsonify({'url': stripe_session.url})
     except Exception as e:
         print(f"Error creating checkout session: {e}")  # Log the error
@@ -376,20 +420,16 @@ def create_checkout_session():
 def checkout_success():
     if 'username' in session:
         try:
-            # Get the cart ID for the logged-in user
             cart_id = cart.get_cart_id(login.get_login_id(session['username']))
-            
             # Clear the cart items and delete the cart
             cart_items.clear_cart_items(cart_id)
             cart.delete_cart(cart_id)
-
             print(f"Cart cleared for user: {session['username']}")
         
         except Exception as e:
             print(f"Error clearing cart after checkout: {e}")
 
     return "Checkout Successful! Thank you for your purchase."
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
