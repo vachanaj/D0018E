@@ -26,16 +26,25 @@ def get_order_item(order_id):
 def add_order_item(order_id, asset_id, quantity, price):
     if db.is_connected():
         cursor = db.cursor()
-        check_query = "SELECT order_items_quantity FROM order_items WHERE order_items_orders_id = %s AND order_items_assets_id = %s"
+        check_query = "SELECT order_items_assets_quantity FROM order_items WHERE order_items_orders_id = %s AND order_items_assets_id = %s"
+        order_id = order_id[0]
+        price = price[0]
+        print("price: ", price)
+        print("order_id: ", order_id)
+        print("asset_id: ", asset_id)
+        print("quantity: ", quantity)
         cursor.execute(check_query, (order_id, asset_id))
         result = cursor.fetchone()
         
         if result:
+            print("result: ", result)
             new_quantity = result[0] + quantity
             update_query = "UPDATE order_items SET order_items_assets_quantity = %s WHERE order_items_orders_id = %s AND order_items_assets_id = %s"
             cursor.execute(update_query, (new_quantity, order_id, asset_id))
+
         else:
-            insert_query = "INSERT INTO order_items (order_items_orders_id, order_items_assets_id, order_items_assets_quantity) VALUES (%s, %s, %s, %s)"
+            print("result: ", result)
+            insert_query = "INSERT INTO order_items (order_items_orders_id, order_items_assets_id, order_items_assets_quantity, order_items_quantity_price) VALUES (%s, %s, %s, %s)"
             cursor.execute(insert_query, (order_id, asset_id, quantity, price))
         db.commit()
         cursor.close()

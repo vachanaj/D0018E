@@ -36,7 +36,7 @@ def register_user(first, last, username, password, email):
     if cursor.fetchone() is not None:
       cursor.close()
       return False'''
-    query = "INSERT INTO login (login_first_name, login_last_name, login_username, login_password, login_email login_role) VALUES (%s, %s, %s, %s, %s, 'customer')"
+    query = "INSERT INTO login (login_first_name, login_last_name, login_username, login_password, login_email, login_role) VALUES (%s, %s, %s, %s, %s, 'customer')"
     cursor.execute(query, (first, last, username, password, email))
     db.commit()
     cursor.close()

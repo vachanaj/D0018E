@@ -260,7 +260,7 @@ def register_user():
     # Process the login data
     result = login.register_user(first, last, username, password, email)
     if result:
-      return redirect('/welcome-page')
+      return redirect('/')
     else:
       return redirect('/error-page')
 
@@ -414,16 +414,20 @@ def create_checkout_session():
             print("Total price:", total_price)
 
         # Add order to the database
-        # orders.create_order(login_id, total_price, datetime.datetime.now())
-        # print("Order created successfully!")
-        # order_id = orders.get_order_id(login_id)
+        orders.create_order(login_id, total_price, datetime.datetime.now())
+        print("Order created successfully!")
+        order_id = orders.get_order_id(login_id)
 
-        # for item in cart_items:
-        #     assetId = item[0]
-        #     itemQuantity = item[3]
-        #     assetPrice = product_gallery.get_asset_price(assetId)
-        #     order_items.add_order_item(order_id, assetId, itemQuantity, assetPrice)
-        #     print("Order item added successfully!")
+        for item in cart_items:
+            assetId = item[0]
+            itemQuantity = item[3]
+            assetPrice = product_gallery.get_asset_price(assetId)
+            print("Adding order item for assetId:", assetId)
+            print("Order ID:", order_id)
+            print("Item Quantity:", itemQuantity)
+            print("Asset Price:", assetPrice)
+            order_items.add_order_item(order_id, assetId, itemQuantity, assetPrice)
+            print("Order item added successfully!")
 
         
         
