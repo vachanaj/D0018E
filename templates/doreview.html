@@ -3,34 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review Your Purchase</title>
+    <title>doReview</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .dashboard {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            height: 100vh;
+            padding: 20px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 20px 0;
+        }
+        .sidebar ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+        .content h1 {
+            margin-bottom: 20px;
+        }
+        .content section {
+            margin-bottom: 40px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
         }
         th, td {
             padding: 10px;
-            border: 1px solid #ddd;
             text-align: left;
         }
-        .star-rating {
-            display: flex;
-            gap: 5px;
+        th {
+            background-color: #f4f4f4;
         }
-        .star-rating input[type="radio"] {
-            display: none;
-        }
-        .star-rating label {
-            font-size: 24px;
-            color: #ccc;
+        .btn {
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
             cursor: pointer;
         }
-        .star-rating input[type="radio"]:checked ~ label {
-            color: #f8238d;
+        .btn:hover {
+            background-color: #555;
         }
-
-
+        form label {
+            display: block;
+            margin-top: 10px;
+        }
+        form input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -41,76 +89,23 @@
         <thead>
             <tr>
                 <th>Product Name</th>
-                <th>Review</th>
-                <th>Star Rating</th>
+                <th>Score 1 - 5</th>
+                <th>Write review</th>
+                <th>Submit review</th>
+                
+                
             </tr>
         </thead>
         <tbody>
             <!-- Example row, dynamically populated from the backend -->
-            <tr>
-                <td>Product 1</td>
-                <td><textarea rows="2" cols="30" placeholder="Write your review here..."></textarea></td>
-                <td>
-                    <div class="star-rating">
-                        <input type="radio" id="product1-star5" name="product1-rating" value="5">
-                        <label for="product1-star5">★</label>
-                        <input type="radio" id="product1-star4" name="product1-rating" value="4">
-                        <label for="product1-star4">★</label>
-                        <input type="radio" id="product1-star3" name="product1-rating" value="3">
-                        <label for="product1-star3">★</label>
-                        <input type="radio" id="product1-star2" name="product1-rating" value="2">
-                        <label for="product1-star2">★</label>
-                        <input type="radio" id="product1-star1" name="product1-rating" value="1">
-                        <label for="product1-star1">★</label>
-                    </div>
-                </td>
-            </tr>
-            <!-- Add more rows dynamically based on the user's order -->
+
         </tbody>
     </table>
 
-    <button id="submitReview">Submit Reviews</button>
+    <button id="Homepage">Go to Homepage</button>
 
     <script>
-        document.getElementById('submitReview').addEventListener('click', function () {
-            const rows = document.querySelectorAll('#reviewTable tbody tr');
-            const reviews = [];
-
-            rows.forEach(row => {
-                const productName = row.querySelector('td').innerText;
-                const reviewText = row.querySelector('textarea').value;
-                const rating = row.querySelector('input[type="radio"]:checked')?.value;
-
-                if (reviewText && rating) {
-                    reviews.push({
-                        productName,
-                        reviewText,
-                        rating
-                    });
-                }
-            });
-
-            if (reviews.length > 0) {
-                // Send reviews to the backend
-                fetch('/submit-reviews', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(reviews)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert('Thank you for your reviews!');
-                    window.location.href = '/'; // Redirect to homepage or order history
-                })
-                .catch(error => {
-                    console.error('Error submitting reviews:', error);
-                });
-            } else {
-                alert('Please fill out at least one review before submitting.');
-            }
-        });
+ 
     </script>
 </body>
 </html>
