@@ -292,6 +292,16 @@ def add_to_cart():
     # You can store this in a database or session
     return jsonify({"message": f"{data['productName']} added to cart!"})  # Send response
 
+@app.route('/get_cart_items')
+def get_cart_items():
+    login_id = login.get_login_id(session['username'])  # Get login ID from session
+    cart_id = cart.get_cart_id(login_id)         # Get cart ID from login ID    
+    #cartItem = cart_items.get_recent_cart_item(cart_id)
+    cartItems = cart_items.get_cart_items(cart_id)  # Get all cart items from cart ID
+    print("cartItems:", cartItems)  # Debugging: Print cart items
+    return jsonify(cartItems)  # Send cart items as JSON response
+
+
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
     data = request.json  # Get product data from frontend
@@ -347,7 +357,7 @@ def create_checkout_session():
         cart_id_tuple = cart.get_cart_id(login_id)
         cart_id = cart_id_tuple[0] if isinstance(cart_id_tuple, tuple) else cart_id_tuple
 
-        #cartItems = cart_items.get_cart_items(cart_id)
+        
                
         if not cart_id or not isinstance(cart_id, int):
             return jsonify({'error': 'Invalid cart ID'}), 400
@@ -374,15 +384,7 @@ def create_checkout_session():
         
         line_items = []
         for item in cart_items:
-            assetId = item[0]
-            itemQuantity = item[3]
-            inStock = product_gallery.check_quantity(assetId, itemQuantity)
-            if not inStock:
-                return jsonify({'error': 'Item out of stock'}), 400
-            else:
-                print("Decreasing quantity for assetId:", assetId)
-                product_gallery.decrease_quantity(assetId, itemQuantity)
-
+            
             line_items.append({
                 'price_data': {
                     'currency': 'usd',
@@ -399,36 +401,11 @@ def create_checkout_session():
             line_items=line_items,
             mode='payment',
             success_url=request.host_url + 'checkout-success',
-            cancel_url=request.host_url + 'shoppingcart',
+            cancel_url=request.host_url,
         )
 
         print("stripe_session created")
         
-        for item in cart_items:
-            assetId = item[0]
-            itemQuantity = item[3]
-
-            assetPrice = product_gallery.get_asset_price(assetId)
-            total_asset_price = assetPrice[0] * itemQuantity
-            total_price += total_asset_price
-            print("Total price:", total_price)
-
-        # Add order to the database
-        orders.create_order(login_id, total_price, datetime.datetime.now())
-        print("Order created successfully!")
-        order_id = orders.get_order_id(login_id)
-
-        for item in cart_items:
-            assetId = item[0]
-            itemQuantity = item[3]
-            assetPrice = product_gallery.get_asset_price(assetId)
-            print("Adding order item for assetId:", assetId)
-            print("Order ID:", order_id)
-            print("Item Quantity:", itemQuantity)
-            print("Asset Price:", assetPrice)
-            order_items.add_order_item(order_id, assetId, itemQuantity, assetPrice)
-            print("Order item added successfully!")
-
         
         
         cursor.close()
@@ -444,12 +421,52 @@ def create_checkout_session():
 def checkout_success():
     if 'username' in session:
         try:
-            cart_id = cart.get_cart_id(login.get_login_id(session['username']))
+            print("session:", session['username'])
+            login_id = login.get_login_id(session['username'])
+            cart_id = cart.get_cart_id(login_id)
+            cartItems = cart_items.get_cart_items(cart_id)
+
+            for item in cartItems:
+                assetId = item[0]
+                itemQuantity = item[3]
+                inStock = product_gallery.check_quantity(assetId, itemQuantity)
+                if not inStock:
+                    return jsonify({'error': 'Item out of stock'}), 400
+                else:
+                    print("Decreasing quantity for assetId:", assetId)
+                    product_gallery.decrease_quantity(assetId, itemQuantity)
+
+            for item in cart_items:
+                assetId = item[0]
+                itemQuantity = item[3]
+
+                assetPrice = product_gallery.get_asset_price(assetId)
+                total_asset_price = assetPrice[0] * itemQuantity
+                total_price += total_asset_price
+                print("Total price:", total_price)
+
+            # Add order to the database
+            orders.create_order(login_id, total_price, datetime.datetime.now())
+            print("Order created successfully!")
+            order_id = orders.get_order_id(login_id)
+
+            for item in cart_items:
+                assetId = item[0]
+                itemQuantity = item[3]
+                assetPrice = product_gallery.get_asset_price(assetId)
+                print("Adding order item for assetId:", assetId)
+                print("Order ID:", order_id)
+                print("Item Quantity:", itemQuantity)
+                print("Asset Price:", assetPrice)
+                order_items.add_order_item(order_id, assetId, itemQuantity, assetPrice)
+                print("Order item added successfully!")
+
+
             # Clear the cart items and delete the cart
             cart_items.clear_cart_items(cart_id)
             cart.delete_cart(cart_id)
             print(f"Cart cleared for user: {session['username']}")
-        
+    
         except Exception as e:
             print(f"Error clearing cart after checkout: {e}")
 

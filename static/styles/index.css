@@ -190,9 +190,9 @@ body {
 
 .product-card{
     display: grid;
-    grid-template-rows: 1fr 0.15fr;
+    grid-template-rows: 1fr 0.3fr;
     position: relative;
-    min-height: 550px;
+    min-height: 600px;
 }
 
 .product-card:hover{
@@ -236,8 +236,12 @@ body {
 
 .cart-row-item{
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 15% 30% 30% 15% 10%;
+}
 
+table, tr, td {
+    padding: 0;
+    border: 1px solid #ccc;
 }
 
 

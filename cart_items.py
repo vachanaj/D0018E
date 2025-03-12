@@ -26,17 +26,35 @@ def get_cart_items(cart_id):
     if db.is_connected():
         cursor = db.cursor(dictionary=True)
         query = '''
-            SELECT assets_id, assets_type, assets_description, assets_price, assets_quantity, assets_img_name, cart_items_assets_quantity
+            SELECT assets_id, assets_type, assets_desc, assets_price, assets_quantity, assets_img_name, cart_items_assets_quantity
             FROM cart_items
-            JOIN new_assets ON cart_items.cart_items_assets_id = assets.assets_id
+            JOIN assets ON cart_items.cart_items_assets_id = assets.assets_id
             WHERE cart_items_cart_id = %s
         '''
+        cart_id = cart_id[0]
         cursor.execute(query, (cart_id,))
         cart_items = cursor.fetchall()
         cursor.close()
         return cart_items
     else:
         return None
+    
+def get_recent_cart_item(cart_id):
+    if db.is_connected():
+        cursor = db.cursor(dictionary=True)
+        query = '''
+            SELECT assets_id, assets_type, assets_desc, assets_price, assets_quantity, assets_img_name, cart_items_assets_quantity
+            FROM cart_items
+            JOIN assets ON cart_items.cart_items_assets_id = assets.assets_id
+            WHERE cart_items_cart_id = %s
+            ORDER BY cart_items_id DESC
+            LIMIT 1
+        '''
+        cart_id = cart_id[0]
+        cursor.execute(query, (cart_id,))
+        cart_item = cursor.fetchone()
+        cursor.close()
+        return cart_item
     
 def update_cart_item(cart_id, asset_id, quantity):
     if db.is_connected():

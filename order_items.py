@@ -56,7 +56,7 @@ def get_order_items(order_id):
     if db.is_connected():
         cursor = db.cursor(dictionary=True)
         query = '''
-            SELECT assets_id, assets_type, assets_description, assets_price, assets_quantity, assets_img_name, order_items_quantity
+            SELECT assets_id, assets_type, assets_desc, assets_price, assets_quantity, assets_img_name, order_items_quantity
             FROM order_items
             JOIN new_assets ON order_items.order_items_assets_id = assets.assets_id
             WHERE order_items_order_id = %s

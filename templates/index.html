@@ -29,7 +29,7 @@
         }
 
         function openNav() {
-        document.getElementById("mySidenav").style.width = "250px";
+        document.getElementById("mySidenav").style.width = "450px";
         }
 
         function closeNav() {
@@ -74,18 +74,39 @@
                 body: JSON.stringify(productData)
             })
             .then(response => response.json())
-            .then(data => alert(data.message)) // Show success message
+            .then(data => {
+                alert(data.message); // Show success message
+                return fetch('/get_cart_items');
+            })
+            .then(response => response.text())
+            .then(data_arr => {
+                data_arr = JSON.parse(data_arr);
+                console.log("data_arr:", data_arr);
+                document.getElementById('cart-items').innerHTML = '';
+                data_arr.forEach(data => {
+                    console.log("data:", data);
+                    console.log("data:", data.assets_img_name);
+                    document.getElementById('cart-items').innerHTML += `
+                    <tr class="cart-row-item">
+                        <td><img src="/static/images/${data.assets_img_name}" style="width: 50px;"></td>
+                        <td><h5>${data.assets_desc}</h5></td>
+                        <td><span class="btn btn-light" onclick="decr_qty();" style="background-color: #f7d9e2;">-</span>${data.cart_items_assets_quantity}<span class="btn btn-light" onclick="incr_qty();" style="background-color: #f7d9e2;">+</span></td>
+                        <td><h5>$ ${data.assets_price}</h5></td>
+                        <td><a href="#" class="text-danger" onclick="removeItem(${data.assets_id})"><i class="fas fa-trash-alt"></i></a></td>
+                    </tr>
+                    `;
+                });
+
+                let currentSubtotal = parseFloat(document.getElementById('subtotal').innerText.replace('$', ''));
+                let newSubtotal = currentSubtotal + (data.cart_items_assets_quantity * data.assets_price);
+                document.getElementById('subtotal').innerText = `$${newSubtotal.toFixed(2)}`;
+
+            })
             .catch(error => console.error("Error:", error));
 
-            document.getElementById('cart-items').innerHTML += `
-                <tr class="cart-row-item">
-                    <td><img src="/static/images/${productData.productImage}" style="width: 50px;"></td>
-                    <td><h5>${productData.productName}</h5></td>
-                    <td><h5>1</h5></td>
-                    <td><a href="#" class="text-danger" onclick="removeItem(${productData.productId})"><i class="fas fa-trash-alt"></i></a></td>
-                </tr>
-            `;
+            
         }
+
 
         function removeItem(productId) {
             console.log("product_id:"+ productId);
