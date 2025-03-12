@@ -96,56 +96,33 @@
                             <th>Customer Name</th>
                             <th>Status</th>
                             <th>Action</th>
+                            <td><button class="btn">Deliver</button></td>
+                            <td><button class="btn">Expand</button></td>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>1001</td>
-                            <td>John Doe</td>
-                            <td>Pending</td>
-                            <td><button class="btn">Mark as Delivered</button></td>
-                        </tr>
-                        <tr>
-                            <td>1002</td>
-                            <td>Jane Smith</td>
-                            <td>Delivered</td>
-                            <td><button class="btn" disabled>Delivered</button></td>
-                        </tr>
+
                     </tbody>
                 </table>
             </section>
 
-            <!-- Remove Reviews Section -->
-            <section id="remove-reviews">
-                <h2>Manage Reviews</h2>
-                <table border="1">
+            <!-- Order details, Expanded section -->
+            <section id = "order-details">
+                <h2>Order details</h2>
+                <table id="detailsTable">
                     <thead>
                         <tr>
-                            <th>Review ID</th>
-                            <th>Username</th>
-                            <th>Asset Description</th>
-                            <th>Rating</th>
-                            <th>Comments</th>
-                            <th>Action</th>
+                            <th>assets_type</th>
+                            <th>assets_desc</th>
+                            <th>assets_price</th>
+                            <th>assets_quantity</th>
+                            <th>Reviews</th>
+                            <td><button class="btn">Reply</button></td>
+
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for review in reviews %}
-                        <tr>
-                            <td>{{ review.review_id }}</td>
-                            <td>{{ review.login_id }}</td>
-                            <td>{{ review.assets_id }}</td> 
-                            <td>{{ review.review_asset_rating }}</td>
-                            <td>{{ review.review_asset_comments }}</td>
-                            <td>
-                                <form action="{{ url_for('delete_review', review_id=review.review_id) }}" method="POST">
-                                    <button type="submit" class="delete-button">Delete</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
                 </table>
+
             </section>
 
             <!-- Manage Products Section -->
