@@ -93,11 +93,43 @@
             </section>
 
 
-                <!-- view and answer reviews -->
-                <section id = "User-messages">
-                    <h2>View your Messages</h2>
-    
-                </section>
+            <!-- View reviews -->
+            <section id="comments">
+                <h2>Answer comments</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Purchased Clothing Item</th>
+                            <th>Latest Comment from Admin</th>
+                            <th>Write Response</th>
+                            <th>Click Button to Send Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if reviews %}
+                            {% for review in reviews %}
+                                <!-- Display only customer reviews (no parent_review_id) -->
+                                {% if not review.parent_review_id %}
+                                    <tr data-review-id="{{ review.review_id }}">
+                                        <!-- Clothing Item ID -->
+                                        <td><input type="text" value="{{ review.review_asset_id }}" readonly></td>
+                                        <!-- Admin Comment -->
+                                        <td><input type="text" value="{{ review.review_asset_comments }}" readonly></td>
+                                        <!-- Customer Response Input -->
+                                        <td><input type="text" id="response-{{ review.review_id }}" placeholder="Write your response here"></td>
+                                        <!-- Send Response Button -->
+                                        <td><button onclick="saveResponse('{{ review.review_id }}')">Respond</button></td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">No reviews found.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </section>
 
 
 
