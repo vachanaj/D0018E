@@ -25,6 +25,59 @@ def get_db_connection():
     conn = db_connector.get_connection()  # Assuming db_connector has a function to get a connection
     return conn
 
+@app.route('/admin/reply/<int:review_id>', methods=['POST'])
+def admin_reply(review_id):
+    data = request.get_json()
+    print("Received data:", data)  # Debugging
+
+    response_text = data.get('response')
+    author_role = data.get('author_role', 'admin')  # Use 'admin' as the default role
+    admin_id = 1  # Hardcode the admin ID or fetch it from a secure source
+
+    print("Response text:", response_text)  # Debugging
+    print("Author role:", author_role)  # Debugging
+
+    if not response_text:
+        print("Invalid request: Missing response_text")  # Debugging
+        return jsonify({'success': False, 'message': 'Invalid request'})
+
+    # Fetch the original review to get the asset_id
+    original_review = reviews.get_review_by_id(review_id)
+    if not original_review:
+        print("Original review not found")  # Debugging
+        return jsonify({'success': False, 'message': 'Original review not found'})
+
+    # Add the admin reply
+    if reviews.add_review(
+        user_id=admin_id,
+        asset_id=original_review['review_asset_id'],
+        review_text=response_text,
+        parent_review_id=review_id,  # Link to the original review
+        author_role=author_role  # Use the author_role from the request
+    ):
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to save response'})
+
+# Admin Dashboard Route
+#@app.route('/admin/dashboard')
+#def admin_page():
+#    if 'username' in session and session['role'] == 'admin':
+#        try:
+#            # Get the database connection from db_connector
+#            db = db_connector.db
+#            if db and db.is_connected():
+#                cursor = db.cursor(dictionary=True)  # Use dictionary=True to get results as dictionaries
+#                cursor.execute('SELECT * FROM assets')  # Fetch all assets from the database
+#                assets = cursor.fetchall()  # Fetch all rows
+#                cursor.close()
+#                return render_template('admin.html', assets=assets)  # Pass assets to the template
+#            else:
+#                return "Database connection failed. Please check your connection.", 500
+#        except Exception as e:
+#            print(f"Error fetching assets: {e}")
+#            return "An error occurred while fetching assets.", 500
+#    return redirect(url_for('login'))  # Redirect to login if not an admin
 
 # Admin Dashboard Route
 @app.route('/admin/dashboard')
@@ -34,16 +87,24 @@ def admin_page():
             # Get the database connection from db_connector
             db = db_connector.db
             if db and db.is_connected():
+                # Fetch assets
                 cursor = db.cursor(dictionary=True)  # Use dictionary=True to get results as dictionaries
                 cursor.execute('SELECT * FROM assets')  # Fetch all assets from the database
                 assets = cursor.fetchall()  # Fetch all rows
                 cursor.close()
-                return render_template('admin.html', assets=assets)  # Pass assets to the template
+
+                # Fetch reviews using the get_all_reviews function
+                reviews_data = reviews.get_all_reviews()  # Fetch all reviews
+                print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
+
+                # Pass both assets and reviews to the template
+                return render_template('admin.html', assets=assets, reviews=reviews_data)
             else:
+                print("Database connection failed.")  # Debugging
                 return "Database connection failed. Please check your connection.", 500
         except Exception as e:
-            print(f"Error fetching assets: {e}")
-            return "An error occurred while fetching assets.", 500
+            print(f"Error fetching data: {e}")  # Debugging
+            return "An error occurred while fetching data.", 500
     return redirect(url_for('login'))  # Redirect to login if not an admin
 
 @app.route('/admin/add-asset', methods=['POST'])

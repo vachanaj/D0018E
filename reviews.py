@@ -2,43 +2,58 @@ import db_connector
 
 db = db_connector.db
 
-#def get_all_reviews():
-#    if db.is_connected():
-#        cursor = db.cursor(dictionary=True)
-#       cursor.execute("SELECT * FROM reviews")
-#        reviews = cursor.fetchall()
-#        cursor.close()
-#        return reviews
-#    else:
-#        return None
     
+
 def get_all_reviews():
     if db.is_connected():
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM reviews")
+        cursor.execute("SELECT * FROM reviews ORDER BY created_at DESC")  # Fetch all reviews, sorted by creation time
         reviews = cursor.fetchall()
         cursor.close()
-        
-        # Organize reviews by asset_id
-        reviews_by_asset = {}
-        for review in reviews:
-            asset_id = review["review_asset_id"]
-            if asset_id not in reviews_by_asset:
-                reviews_by_asset[asset_id] = []
-            reviews_by_asset[asset_id].append(review)
-        
-        return reviews_by_asset  # Now it's grouped by asset_id
+        return reviews  # Return a flat list of reviews
     return None
 
-def add_review(user_id, asset_id, review_text):
+def get_review_by_id(review_id):
     if db.is_connected():
+        cursor = db.cursor(dictionary=True)
+        query = "SELECT * FROM reviews WHERE review_id = %s"
+        cursor.execute(query, (review_id,))
+        review = cursor.fetchone()  # Fetch a single review
+        cursor.close()
+        return review  # Return the review as a dictionary
+    return None
+
+def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=None, author_role='customer'):
+    if not db.is_connected():
+        return False  # Database connection failed
+
+    # Validate inputs
+    if not user_id or not asset_id or not review_text:
+        print("Error: user_id, asset_id, and review_text are required.")
+        return False
+
+    # Ensure rating is only set for customer reviews (not replies)
+    if parent_review_id is not None:
+        rating = None  # Replies (admin or customer) should not have a rating
+
+    # Ensure rating is valid (1 to 5) if provided
+    if rating is not None and (rating < 1 or rating > 5):
+        print("Error: Rating must be between 1 and 5.")
+        return False
+
+    try:
         cursor = db.cursor()
-        query = "INSERT INTO reviews (reviews_login_id, reviews_assets_id, reviews_text) VALUES (%s, %s, %s)"
-        cursor.execute(query, (user_id, asset_id, review_text))
+        query = """
+        INSERT INTO reviews 
+        (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at) 
+        VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        """
+        cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role))
         db.commit()
         cursor.close()
         return True
-    else:
+    except Exception as e:
+        print(f"Error inserting review: {e}")
         return False
     
 def delete_review(review_id):
