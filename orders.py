@@ -4,6 +4,7 @@ db = db_connector.db
 
 def create_order(user_id, total_price, timestamp):
     if db.is_connected():
+        print("Order creation started")
         cursor = db.cursor()
         query = "INSERT INTO orders (order_login_id, order_total_price, order_status, order_timestamp) VALUES (%s, %s, %s, %s)"
         user_id = user_id[0]

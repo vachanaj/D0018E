@@ -228,8 +228,21 @@ def logout():
 @app.route('/')
 def index():
     assets = product_gallery.get_all_assets()
+    print("assets:", assets)
     reviews_by_asset = reviews.get_all_reviews()  # Now it's grouped by asset_id
-    
+    print("reviews_by_asset:", reviews_by_asset)
+    if 'username' in session:
+        print("session:", session['username'])
+        login_id = login.get_login_id(session['username'])
+        cart_id = cart.get_cart_id(login_id)
+        print(cart_id)
+        if cart_id is None:
+            return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset)
+        else:
+            cartItems = cart_items.get_cart_items(cart_id)
+            print("cart items in default route: ", cartItems)
+            return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset, cart_items=cartItems)
+        
     return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset)
 
 
@@ -280,17 +293,42 @@ def register_admin_route():
     else:
       return jsonify({"success": False, "message": "Failed to register admin"})
 
+@app.route('/update_cart', methods=['GET', 'POST'])
+def update_cart():
+    data = request.json  # Get product data from frontend
+    print("request data: ", data)
+    iord = data['operation']
+    productId = data['productId']
+    login_id =  login.get_login_id(session['username'])
+    cart_id = cart.get_cart_id(login_id)
+    cart_items.update_cart_item_op(cart_id, productId, iord) # incr/decr product from cart
+    return jsonify({"message": f"{productId} cart updated"})  # Send response
+
 @app.route('/add_to_cart', methods=['GET', 'POST'])
 def add_to_cart():
-    data = request.json  # Get product data from frontend
-    print("Added to Cart:", data)  # Print to console (or process further)
+    productId = request.json  # Get product data from frontend
+    print("Added to Cart:", productId)  # Print to console (or process further)
 
     #product_gallery.decrease_quantity(data['productId'], 1)  # Decrease product quantity
-    login_id = login.get_login_id(data['loginUsername'])  # Get login ID from session
+    #login_id = login.get_login_id(data['loginUsername'])  # Get login ID from session
+    
+    login_id =  login.get_login_id(session['username'])
     cart_id = cart.get_cart_id(login_id)
-    cart_items.add_to_cart(cart_id, data['productId'])  # Add product to cart
+    cart_items.add_to_cart(cart_id, productId)  # Add product to cart
     # You can store this in a database or session
-    return jsonify({"message": f"{data['productName']} added to cart!"})  # Send response
+    return jsonify({"message": f"{productId} added to cart!"})  # Send response
+
+@app.route('/remove_from_cart', methods=['POST'])
+def remove_from_cart():
+    productId = request.json  # Get product data from frontend
+    print("Removed from Cart:", productId)  # Print to console (or process further)
+    
+    #product_gallery.increase_quantity(data['productId'], 1)  # Increase product quantity
+    login_id =  login.get_login_id(session['username']) # Get login ID from session
+    cart_id = cart.get_cart_id(login_id)
+    cart_items.remove_from_cart(cart_id, productId)  # Remove product from cart
+    # You can store this in a database or session
+    return jsonify({"message": f"{productId} removed from cart!"})  # Send response
 
 @app.route('/get_cart_items')
 def get_cart_items():
@@ -300,19 +338,6 @@ def get_cart_items():
     cartItems = cart_items.get_cart_items(cart_id)  # Get all cart items from cart ID
     print("cartItems:", cartItems)  # Debugging: Print cart items
     return jsonify(cartItems)  # Send cart items as JSON response
-
-
-@app.route('/remove_from_cart', methods=['POST'])
-def remove_from_cart():
-    data = request.json  # Get product data from frontend
-    print("Removed from Cart:", data)  # Print to console (or process further)
-    
-    #product_gallery.increase_quantity(data['productId'], 1)  # Increase product quantity
-    login_id = login.get_login_id(data['loginUsername'])  # Get login ID from session
-    cart_id = cart.get_cart_id(login_id)
-    cart_items.remove_from_cart(cart_id, data['productId'])  # Remove product from cart
-    # You can store this in a database or session
-    return jsonify({"message": f"{data['name']} removed from cart!"})  # Send response
 
 @app.route('/shoppingcart')
 def shoppingcart():
@@ -349,16 +374,15 @@ def create_checkout_session():
     
     #yes it does need to be this stupid for some reason, could make it nicer with more time maybe, now it works
     try:
-        username = session.get('username')
+        username = session['username']
         if not username:
             return jsonify({'error': 'User not logged in'}), 401
 
         login_id = login.get_login_id(username)
         cart_id_tuple = cart.get_cart_id(login_id)
+        print("cart_id_tuple", cart_id_tuple)
         cart_id = cart_id_tuple[0] if isinstance(cart_id_tuple, tuple) else cart_id_tuple
 
-        
-               
         if not cart_id or not isinstance(cart_id, int):
             return jsonify({'error': 'Invalid cart ID'}), 400
 
@@ -380,8 +404,6 @@ def create_checkout_session():
 
         total_price = 0  # Initialize total_price
             
-         
-        
         line_items = []
         for item in cart_items:
             
@@ -420,25 +442,32 @@ def create_checkout_session():
 @app.route('/checkout-success')
 def checkout_success():
     if 'username' in session:
+        total_price = 0
         try:
-            print("session:", session['username'])
+            print("checkout success for:", session['username'])
             login_id = login.get_login_id(session['username'])
             cart_id = cart.get_cart_id(login_id)
             cartItems = cart_items.get_cart_items(cart_id)
 
             for item in cartItems:
-                assetId = item[0]
-                itemQuantity = item[3]
+                print("item", item)
+                assetId = item['assets_id']
+                print("assetId", assetId)
+                itemQuantity = item['cart_items_assets_quantity']
+                
+                print(itemQuantity)
                 inStock = product_gallery.check_quantity(assetId, itemQuantity)
                 if not inStock:
+                    print("item in stock")
                     return jsonify({'error': 'Item out of stock'}), 400
                 else:
                     print("Decreasing quantity for assetId:", assetId)
                     product_gallery.decrease_quantity(assetId, itemQuantity)
 
-            for item in cart_items:
-                assetId = item[0]
-                itemQuantity = item[3]
+            for item in cartItems:
+                assetId = item['assets_id']
+                print("assetId: ",assetId)
+                itemQuantity = item['cart_items_assets_quantity']
 
                 assetPrice = product_gallery.get_asset_price(assetId)
                 total_asset_price = assetPrice[0] * itemQuantity
@@ -450,9 +479,9 @@ def checkout_success():
             print("Order created successfully!")
             order_id = orders.get_order_id(login_id)
 
-            for item in cart_items:
-                assetId = item[0]
-                itemQuantity = item[3]
+            for item in cartItems:
+                assetId = item['assets_id']
+                itemQuantity = item['cart_items_assets_quantity']
                 assetPrice = product_gallery.get_asset_price(assetId)
                 print("Adding order item for assetId:", assetId)
                 print("Order ID:", order_id)
@@ -470,7 +499,7 @@ def checkout_success():
         except Exception as e:
             print(f"Error clearing cart after checkout: {e}")
 
-    return "Checkout Successful! Thank you for your purchase."
+    return render_template("checkoutsuccess.html")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

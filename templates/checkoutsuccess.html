@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+ 
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Clothing Store</title>
+    
+    <style>
+        .payment-success{
+            margin-left:20%;
+
+            height: 500px;
+            width: 400px;
+            padding: 20px;
+            display:grid;
+            grid-template-rows: 20% 70% 10%;
+            align-content: center;
+            text-align: center;
+
+        }
+
+        .payment-success-header{
+            background-color: #f7d9e2;
+        }
+
+        .payment-success-footer{
+            background-color:lightgrey; 
+            padding-top:5px;
+            padding-left:50%;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="payment-success">
+        <div class = "payment-success-header">
+            <h1>Payment Success!</h1>
+            <h5>Thank you for your Shopping!</h5>
+        </div>
+        <div style="background-size:cover;">
+            <img src="/static/images/payment_success.jpg" height="100%;" width="100%;">
+        </div>
+        <div class="payment-success-footer" >
+            <a class="btn btn-light" style="background-color: #f7d9e2;" href="/" class="btn">Back to Home Page</a>
+        </div>
+    </div>
+</body>
+</html>

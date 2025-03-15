@@ -36,6 +36,7 @@ def get_asset_price(asset_id):
         return None
     
 def check_quantity(asset_id, quantity):
+    print("asset_id and quantity", asset_id, quantity)
     if db.is_connected():
         cursor = db.cursor()
         query = "SELECT assets_quantity FROM assets WHERE assets_id = %s"

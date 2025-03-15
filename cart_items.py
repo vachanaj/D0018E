@@ -35,6 +35,7 @@ def get_cart_items(cart_id):
         cursor.execute(query, (cart_id,))
         cart_items = cursor.fetchall()
         cursor.close()
+        #print("cart items:", cart_items)
         return cart_items
     else:
         return None
@@ -66,7 +67,40 @@ def update_cart_item(cart_id, asset_id, quantity):
         return True
     else:
         return False
-    
+
+def update_cart_item_op(cart_id, asset_id, operation):
+    if db.is_connected():
+        cursor = db.cursor()
+        cart_id = cart_id[0]
+        check_query = "SELECT cart_items_assets_quantity FROM cart_items WHERE cart_items_cart_id = %s AND cart_items_assets_id = %s"
+        cursor.execute(check_query, (cart_id, asset_id))
+        result = cursor.fetchone()
+        
+        if result:
+            if operation == 'incr':
+                new_quantity = result[0] + 1
+                update_query = "UPDATE cart_items SET cart_items_assets_quantity = %s WHERE cart_items_cart_id = %s AND cart_items_assets_id = %s"
+                cursor.execute(update_query, (new_quantity, cart_id, asset_id))
+            else:
+                if result[0] == 0:
+                    print("cart empty: can not decrement")
+                else:
+                    new_quantity = result[0] - 1
+                    update_query = "UPDATE cart_items SET cart_items_assets_quantity = %s WHERE cart_items_cart_id = %s AND cart_items_assets_id = %s"
+                    cursor.execute(update_query, (new_quantity, cart_id, asset_id))
+        else:
+            if operation == 'incr':
+                insert_query = "INSERT INTO cart_items (cart_items_cart_id, cart_items_assets_id, cart_items_assets_quantity) VALUES (%s, %s, %s)"
+                cursor.execute(insert_query, (cart_id, asset_id, 1))
+            else:
+                print("cart empty: can not decrement")
+        db.commit()
+        cursor.close()
+        print("cart updated")
+        return True
+
+
+
 def remove_from_cart(cart_id, asset_id):
     if db.is_connected():
         cursor = db.cursor()

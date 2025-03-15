@@ -236,12 +236,31 @@ body {
 
 .cart-row-item{
     display: grid;
-    grid-template-columns: 15% 30% 30% 15% 10%;
+    grid-template-columns: 15% 30% 25% 20% 10%;
 }
 
 table, tr, td {
     padding: 0;
-    border: 1px solid #ccc;
+    border: 1px solid #f7d9e2;
+    text-align: center;
+}
+
+.empty-cart{
+    margin-left: 50px;
+    height: 100px;
+
+}
+
+.subtotal-line{
+    display:block;
+    min-height:10px;
+    border-top: 2px solid #f7d9e2;
+    margin-top: 10px;
+}
+
+.div-10{
+    display:block;
+    min-height:10px;
 }
 
 
