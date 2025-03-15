@@ -195,6 +195,17 @@
             });
         }
 
+        function userInfo() {
+            fetch('/user-info')
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+                document.getElementById('full-page').innerHTML = data;
+
+                //document.getElementById('content-page').innerHTML = data;
+            });
+        }
+
         function getProductReview(div){
             let product = div.parentElement.parentElement.parentElement;
             console.log(product);
@@ -285,9 +296,8 @@
                 <!-- Login Button -->
               <div id="login-button">
                     {% if session['username'] is defined %}
-                        <div onclick="logout()" class="btn btn-light">
+                        <div onclick="userInfo()" class="btn btn-light">
                             <i class="bi bi-person-circle"></i> {{ session['username'] }}
-                            <div><button class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button></div>
                             
                         </div>
                     {% else %}

@@ -272,6 +272,18 @@ def logout():
     print("Logged out successfully!")
     return redirect('/')  # back to start after logout
 
+@app.route('/user-info')
+def user_info():
+    
+    print("user info for user:", session['username'])
+    
+    # Check if the user is an admin or normal user
+    if session['role'] == 'admin':
+        return redirect(url_for('admin_page'))  # Redirect to admin page if admin
+    else:
+        return render_template('userhome.html')  # Redirect normal users to homepage with session info
+    
+
 #@app.route('/')
 #def index():
 #    assets = product_gallery.get_all_assets()
