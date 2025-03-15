@@ -79,6 +79,54 @@
             margin-bottom: 10px;
             box-sizing: border-box;
         }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .review {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .reply {
+            margin-left: 20px;
+            padding: 10px;
+            border-left: 2px solid #007bff;
+            background-color: #e9f5ff;
+        }
+        .reply-form {
+            margin-top: 10px;
+        }
+        .reply-form input {
+            width: 80%;
+            padding: 5px;
+        }
+        .reply-form button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .reply-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
     </style>
 </head>
 <body>
@@ -95,40 +143,39 @@
 
             <!-- View reviews -->
             <section id="comments">
-                <h2>Answer comments</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Purchased Clothing Item</th>
-                            <th>Latest Comment from Admin</th>
-                            <th>Write Response</th>
-                            <th>Click Button to Send Response</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if reviews %}
-                            {% for review in reviews %}
-                                <!-- Display only customer reviews (no parent_review_id) -->
-                                {% if not review.parent_review_id %}
-                                    <tr data-review-id="{{ review.review_id }}">
-                                        <!-- Clothing Item ID -->
-                                        <td><input type="text" value="{{ review.review_asset_id }}" readonly></td>
-                                        <!-- Admin Comment -->
-                                        <td><input type="text" value="{{ review.review_asset_comments }}" readonly></td>
-                                        <!-- Customer Response Input -->
-                                        <td><input type="text" id="response-{{ review.review_id }}" placeholder="Write your response here"></td>
-                                        <!-- Send Response Button -->
-                                        <td><button onclick="saveResponse('{{ review.review_id }}')">Respond</button></td>
-                                    </tr>
+                <div class="container">
+                    <h1>Your Reviews and Responses</h1>
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="review">
+                                <p><strong>Your Review:</strong> {{ review.review_asset_comments }}</p>
+                                <p><strong>Rating:</strong> {{ review.review_asset_rating }}</p>
+                                <p><strong>Date:</strong> {{ review.created_at }}</p>
+            
+                                <!-- Display Admin Replies -->
+                                {% if review.replies %}
+                                    <h3>Admin Responses:</h3>
+                                    {% for reply in review.replies %}
+                                        <div class="reply">
+                                            <p><strong>Admin:</strong> {{ reply.review_asset_comments }}</p>
+                                            <p><strong>Date:</strong> {{ reply.created_at }}</p>
+            
+                                            <!-- Reply Form for User -->
+                                            <div class="reply-form">
+                                                <input type="text" id="response-{{ reply.review_id }}" placeholder="Write your response here">
+                                                <button onclick="saveResponse('{{ reply.review_id }}')">Reply</button>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
                                 {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <tr>
-                                <td colspan="5">No reviews found.</td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No reviews found.</p>
+                    {% endif %}
+                </div>
+            
+
             </section>
 
 
@@ -140,6 +187,41 @@
 
         </div>
     </div>
+
+<script>
+    function saveResponse(reviewId) {
+        const response = document.getElementById(`response-${reviewId}`).value;
+
+        if (!response) {
+            alert("Please write a response before submitting.");
+            return;
+        }
+
+        fetch(`/customer/reply/${reviewId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                response: response,
+                author_role: 'customer'  // Explicitly set the role
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Response saved successfully');
+                location.reload();  // Reload the page to reflect changes
+            } else {
+                alert('Failed to save response: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving the response.');
+        });
+    }
+</script>
 
 </body>
 </html>

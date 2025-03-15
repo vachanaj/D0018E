@@ -28,6 +28,38 @@ def get_db_connection():
     conn = db_connector.get_connection()  # Assuming db_connector has a function to get a connection
     return conn
 
+@app.route('/customer/reply/<int:review_id>', methods=['POST'])
+def customer_reply(review_id):
+    data = request.get_json()
+    print("Received data:", data)  # Debugging
+
+    response_text = data.get('response')
+    author_role = data.get('author_role', 'customer')  # Default to 'customer'
+    user_id = session.get('username')  # Get the logged-in user's ID
+
+    if not response_text or not user_id:
+        print("Invalid request: Missing response_text or user_id")  # Debugging
+        return jsonify({'success': False, 'message': 'Invalid request'})
+
+    # Fetch the original review to get the asset_id
+    original_review = reviews.get_review_by_id(review_id)
+    if not original_review:
+        print("Original review not found")  # Debugging
+        return jsonify({'success': False, 'message': 'Original review not found'})
+
+    # Add the customer reply
+    if reviews.add_review(
+        user_id=user_id,
+        asset_id=original_review['review_asset_id'],
+        review_text=response_text,
+        parent_review_id=review_id,  # Link to the original review
+        author_role=author_role
+    ):
+        return jsonify({'success': True})
+    else:
+        return jsonify({'success': False, 'message': 'Failed to save response'})
+        
+
 @app.route('/admin/reply/<int:review_id>', methods=['POST'])
 def admin_reply(review_id):
     data = request.get_json()

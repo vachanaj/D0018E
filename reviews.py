@@ -4,13 +4,42 @@ db = db_connector.db
 
     
 
+#def get_all_reviews():
+#    if db.is_connected():
+#        cursor = db.cursor(dictionary=True)
+#        cursor.execute("SELECT * FROM reviews ORDER BY created_at DESC")  # Fetch all reviews, sorted by creation time
+#        reviews = cursor.fetchall()
+#        cursor.close()
+#        return reviews  # Return a flat list of reviews
+#    return None
+
+
 def get_all_reviews():
     if db.is_connected():
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM reviews ORDER BY created_at DESC")  # Fetch all reviews, sorted by creation time
+        cursor.execute("""
+            SELECT * FROM reviews 
+            ORDER BY created_at DESC
+        """)
         reviews = cursor.fetchall()
         cursor.close()
-        return reviews  # Return a flat list of reviews
+
+        # Organize reviews into a hierarchical structure
+        review_dict = {}
+        for review in reviews:
+            if review['parent_review_id'] is None:
+                # This is a top-level review
+                review_dict[review['review_id']] = {  # Fixed: Added missing closing bracket
+                    **review,
+                    'replies': []
+                }
+            else:
+                # This is a reply to a review
+                if review['parent_review_id'] in review_dict:
+                    review_dict[review['parent_review_id']]['replies'].append(review)
+
+        # Convert the dictionary to a list of top-level reviews
+        return list(review_dict.values())
     return None
 
 def get_review_by_id(review_id):
