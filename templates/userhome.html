@@ -83,27 +83,81 @@
             margin-bottom: 10px;
             box-sizing: border-box;
         }
-        .order-header{
-            display:grid;
-            grid-template-columns: auto auto;
-            background-color: #f7d9e2;
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
-        .order-footer{
-            background-color: #f7d9e2;
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        .order-details{
-            
-            border: 1px solid lightgrey;
-            padding:20px;
-            
+        h1 {
+            text-align: center;
+            color: #333;
         }
-        .div-20{
-            height:20px;
+        .review {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
         }
-        .cust-view-orders{
-            height:100px;
-            width: 100%;
-            overflow-y: auto;
+        .reply {
+            margin-left: 20px;
+            padding: 10px;
+            border-left: 2px solid #007bff;
+            background-color: #e9f5ff;
+        }
+        .reply-form {
+            margin-top: 10px;
+        }
+        .reply-form input {
+            width: 80%;
+            padding: 5px;
+        }
+        .reply-form button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .reply-form button:hover {
+            background-color: #0056b3;
+        }
+
+        .order {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .order h3 {
+            margin-top: 0;
+        }
+        .order-items {
+            margin-left: 20px;
+        }
+        .order-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 2px solid #007bff;
+            background-color: #e9f5ff;
+        }
+        .review-section {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .review-section.active {
+            display: block; /* Show when active */
         }
     </style>
 </head>
@@ -115,89 +169,107 @@
             </section>
 
             <!-- View orders -->
-            <section id = "cust-view-orders">
-                <h5>Your orders</h5>
-                
-                {% for singleorder in cust_orders %}
-                
-                <div class="order-details">
-                    <div class="order-header">
-                        <div class="order-id">
-                            <h5>Order Id: {{ singleorder['order_id'] }}</h5>
+            <section id="User-view-orders">
+                <h2>Your Orders</h2>
+                {% if orders %}
+                    {% for order in orders %}
+                        <div class="order">
+                            <h3>Order ID: {{ order.order_id }}</h3>
+                            <p><strong>Total Price:</strong> ${{ order.order_total_price }}</p>
+                            <p><strong>Status:</strong> {{ order.order_status }}</p>
+                            <p><strong>Date:</strong> {{ order.order_timestamp }}</p>
+
+                            <!-- Display Order Items -->
+                            <div class="order-items">
+                                <h4>Items:</h4>
+                                {% for item in order.items %}
+                                    <div class="order-item">
+                                        <p><strong>Asset ID:</strong> {{ item.order_items_assets_id }}</p>
+                                        <p><strong>Quantity:</strong> {{ item.order_items_assets_quantity }}</p>
+                                        <p><strong>Price:</strong> ${{ item.order_items_quantity_price }}</p>
+
+                                        <!-- Check if a review exists for this asset -->
+                                        {% set review_exists = false %}
+                                        {% for review in reviews %}
+                                            {% if review.review_asset_id == item.order_items_assets_id %}
+                                                {% set review_exists = true %}
+                                                <button class="review-button" disabled>
+                                                    Your Review: {{ review.review_asset_rating }} stars - {{ review.review_asset_comments }}
+                                                </button>
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        <!-- If no review exists, show the "Review this item" button -->
+                                        {% if not review_exists %}
+                                            <button class="review-button" onclick="toggleReviewSection('{{ item.order_items_assets_id }}')">
+                                                Review this item
+                                            </button>
+                                            <!-- Review Section for this Asset -->
+                                            <div id="review-section-{{ item.order_items_assets_id }}" class="review-section">
+                                                <h4>Write a Review</h4>
+                                                <form onsubmit="submitReview(event, '{{ item.order_items_assets_id }}')">
+                                                    <label for="rating-{{ item.order_items_assets_id }}">Rating:</label>
+                                                    <select id="rating-{{ item.order_items_assets_id }}" required>
+                                                        <option value="1">1 - Poor</option>
+                                                        <option value="2">2 - Fair</option>
+                                                        <option value="3">3 - Good</option>
+                                                        <option value="4">4 - Very Good</option>
+                                                        <option value="5">5 - Excellent</option>
+                                                    </select>
+                                                    <label for="comments-{{ item.order_items_assets_id }}">Comments:</label>
+                                                    <textarea id="comments-{{ item.order_items_assets_id }}" required></textarea>
+                                                    <button type="submit">Submit Review</button>
+                                                </form>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="order-timestamp">
-                            <h5>Order Timestamp: {{ singleorder['order_timestamp'] }}</h5>
-                        </div>
-                    </div>
-                    <div class="order-items">
-                        <table class="table table-striped">
-                            <tbody>
-                                <tr class="cart-row-item">
-                                    <th>Image</th>
-                                    <th>Description</th>
-                                    <th>Qty</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
-                                </tr>
-                                {% if cust_orders is defined %}
-                                    {% for item in singleorder['single_order_items'] %}
-                                    
-                                    <tr class="cart-row-item">
-                                        <td style="padding:0px;"><img src="/static/images/{{ item['assets_img_name'] }}" style="width: 50px;"></td>
-                                        <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_desc'] }}</h5></td>
-                                        <td style="padding:0px;padding-top:10%;">{{ item['order_items_assets_quantity'] }}</td>
-                                        <td style="padding:0px;padding-top:10%;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
-                                        <td style="padding:0px;padding-top:10%;"><a href="#" style="padding:0px">$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</a></td>
-                                    </tr>
-                                    {% endfor %}
-                                {% else %}
-                                <tr class="cart-row-item">
-                                    <td colspan="5">You don't have any orders yet</td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="order-footer">
-                        <div class="order-total-price">
-                            <h5>Total order price: {{ singleorder['order_total_price'] }}</h5>
-                        </div>
-                    </div>
-                    
-                </div>
-                <div class="div-20"> </div>         
-                {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    <p>No orders found.</p>
+                {% endif %}
             </section>
 
 
-                <!-- view and answer reviews -->
-                <section id = "User-messages">
-                    <h5>Your Reviews</h5>
-                    <table class="table table-striped">
-                    
-                        <tbody id = "cart-items">
-                            <tr class="cart-row-item">
-                                <th>Description</th>
-                                <th>Your Review</th>
-                                <th>Response from Store</th>
-                            </tr>
-                            {% if order_items is defined %}
-                                {% for item in order_items %}
-                                 
-                                <tr class="cart-row-item">
-                                    <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_desc'] }}</h5></td>
-                                    <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_review']}}</h5></td>
-                                    <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_review_response']}}</h5></td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                            <tr class="cart-row-item">
-                                <td colspan="3">You don't have any orders yet</td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </section>
+            
+            <!-- View reviews -->
+            <section id="comments">
+                <div class="container">
+                    <h1>Your Reviews and Responses</h1>
+                    {% if reviews %}
+                        {% for review in reviews %}
+                            <div class="review">
+                                <p><strong>Your Review:</strong> {{ review.review_asset_comments }}</p>
+                                <p><strong>Rating:</strong> {{ review.review_asset_rating }}</p>
+                                <p><strong>Date:</strong> {{ review.created_at }}</p>
+
+                                <!-- Display Admin Replies -->
+                                {% if review.replies %}
+                                    <h3>Admin Responses:</h3>
+                                    {% for reply in review.replies %}
+                                        <div class="reply">
+                                            <p><strong>Admin:</strong> {{ reply.review_asset_comments }}</p>
+                                            <p><strong>Date:</strong> {{ reply.created_at }}</p>
+
+                                            <!-- Reply Form for User (only for the latest admin reply) -->
+                                            {% if loop.last %}  <!-- Only show the form for the latest reply -->
+                                                <div class="reply-form">
+                                                    <input type="text" id="response-{{ reply.review_id }}" placeholder="Write your response here">
+                                                    <button onclick="saveResponse('{{ reply.review_id }}')">Reply</button>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No reviews found.</p>
+                    {% endif %}
+                </div>
+            </section>
 
 
 
@@ -209,6 +281,112 @@
 
         </div>
     </div>
+
+
+
+<script>
+    // Function to toggle the review section for a specific asset
+    function toggleReviewSection(assetId) {
+        const reviewSection = document.getElementById(`review-section-${assetId}`);
+        reviewSection.classList.toggle('active');
+    }
+
+    // Function to handle review submission (frontend only for now)
+    function submitReview(event, assetId) {
+        event.preventDefault(); // Prevent form submission
+
+        const rating = document.getElementById(`rating-${assetId}`).value;
+        const comments = document.getElementById(`comments-${assetId}`).value;
+
+        if (!rating || !comments) {
+            alert("Please fill out all fields before submitting.");
+            return;
+        }
+
+        // For now, just display the review data
+        console.log("Review submitted for Asset ID:", assetId);
+        console.log("Rating:", rating);
+        console.log("Comments:", comments);
+
+        alert("Review submitted successfully!");
+        toggleReviewSection(assetId); // Hide the review section after submission
+    }
+
+    function testFunction() {
+        console.log("Test button clicked!");
+        alert("Test button clicked!");
+    }
+    
+</script>
+
+<!-- FIRST SCRIPT (loads functions) -->
+<script>
+    function saveResponse(reviewId) {
+        console.log("saveResponse called with reviewId:", reviewId);
+        const responseInput = document.getElementById(`response-${reviewId}`);
+
+        if (!responseInput) {
+            alert("Response input field not found.");
+            return;
+        }
+
+        const response = responseInput.value;
+        console.log("Response:", response);
+
+        if (!response) {
+            alert("Please write a response before submitting.");
+            return;
+        }
+
+        fetch(`/customer/reply/${reviewId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                response: response,
+                author_role: 'customer'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Failed to save response');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Response saved successfully');
+                location.reload();
+            } else {
+                throw new Error(data.message || 'Failed to save response');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
+    }
+
+    // Attach function to global scope
+    window.saveResponse = saveResponse;
+    console.log("saveResponse function has been defined.");
+</script>
+
+<!-- SECOND SCRIPT (triggers functions after DOM loads) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM fully loaded. Checking saveResponse...");
+        console.log(typeof window.saveResponse); // Should be 'function'
+
+        if (typeof window.saveResponse === "undefined") {
+            alert("saveResponse function is missing!");
+        }
+    });
+</script>
+
 
 </body>
 </html>
