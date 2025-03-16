@@ -270,8 +270,11 @@ def login_user():
         
         if user:
             # Store user information in session
+            session['userfirst'] = user['login_first_name']
+            session['userlast'] = user['login_last_name']
             session['username'] = user['login_username']
             session['role'] = user['login_role']
+            session['useremail'] = user['login_email']
 
             # Check if the user is an admin or normal user
             if user['login_role'] == 'admin':
@@ -301,18 +304,6 @@ def logout():
     print("Logged out successfully!")
     return redirect('/')  # back to start after logout
 
-#@app.route('/user-info')
-#def user_info():
-    
-#    print("user info for user:", session['username'])
-    
-#    # Check if the user is an admin or normal user
-#    if session['role'] == 'admin':
-#        return redirect(url_for('admin_page'))  # Redirect to admin page if admin
-#    else:
-#        return render_template('userhome.html')  # Redirect normal users to homepage with session info
-
-
 @app.route('/user-info')
 def user_info():
     if 'username' in session:
@@ -322,22 +313,37 @@ def user_info():
         if session['role'] == 'admin':
             return redirect(url_for('admin_page'))  # Redirect to admin page if admin
         else:
+            login_id = login.get_login_id(session['username'])
+            print("login Id: ", login_id)
+            cust_order_ids = orders.get_order_ids(login_id)
+            print("order Ids: ", cust_order_ids)
+            cust_orders = []
+            for orderid in cust_order_ids:
+                singleOrderitems = order_items.get_order_items(orderid[0])
+                print("single order items", singleOrderitems)
+                cust_orders.append({
+                    'order_id': orderid[0],
+                    'order_total_price': orderid[2],
+                    'order_timestamp': orderid[4],
+                    'single_order_items': singleOrderitems
+                })
+            #print("cust_orders: ", cust_orders)
             username = session['username']  # Get the logged-in user's username
             asset_id = 2  # Hardcode the asset ID for now (replace with dynamic value later)
 
             # Fetch the login_id for the logged-in user
-            login_id = reviews.get_login_id_by_username(username)  # Use reviews.get_login_id_by_username
-            if not login_id:
-                return jsonify({'success': False, 'message': 'User not found'})
+            review_login_id = reviews.get_login_id_by_username(username)  # Use reviews.get_login_id_by_username
+            #if not login_id:
+                #return jsonify({'success': False, 'message': 'User not found'})
 
-            print(f"Fetching reviews for login_id: {login_id}, asset_id: {asset_id}")  # Debugging
+            print(f"Fetching reviews for login_id: {review_login_id}, asset_id: {asset_id}")  # Debugging
 
             # Fetch reviews for the logged-in user and the specific item
-            reviews_data = reviews.get_reviews_for_user_and_item(login_id, asset_id)
+            reviews_data = reviews.get_reviews_for_user_and_item(review_login_id, asset_id)
             print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
 
             # Pass reviews to the template
-            return render_template('userhome.html', reviews=reviews_data)
+            return render_template('userhome.html', cust_orders=cust_orders, reviews=reviews_data)
     else:
         # Redirect to the login page if the user is not logged in
         return redirect(url_for('login_user'))       

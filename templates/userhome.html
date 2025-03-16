@@ -155,75 +155,121 @@
         .review-section.active {
             display: block; /* Show when active */
         }
+        .user-top-bar{
+            background-color: #f7d9e2;
+        }
+        .order-header{
+            display:grid;
+            grid-template-columns: auto auto;
+            background-color: #f7d9e2;
+        }
+        .order-footer{
+            background-color: #f7d9e2;
+        }
+        .order-details{
+            
+            border: 1px solid lightgrey;
+            padding:20px;
+            
+        }
+        .div-20{
+            height:20px;
+        }
+        .cust-view-orders{
+            height:100px;
+            width: 100%;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="content">
-            <h1>User Dashboard</h1>
+            <section class="cust-top-bar">
+                <h2>Welcome {{ session['userfirst']}} {{ session['userlast']}}</h2>
+            </section>
+
+            <section class="cust-user-info">
+                <h5>Your accont information</h5>
+                <table>
+                    <tbody>
+                        <tr class="cart-row-item">
+                            <td style="padding:0px;">First Name</td>
+                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['userfirst'] }}</h5></td>
+                            <td style="padding:0px;padding-top:10%;"><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
+                        </tr>
+                        <tr class="cart-row-item">
+                            <td style="padding:0px;">Last Name</td>
+                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['userlast'] }}</h5></td>
+                            <td style="padding:0px;padding-top:10%;"><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
+                        </tr>
+                        <tr class="cart-row-item">
+                            <td style="padding:0px;">email</td>
+                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['useremail'] }}</h5></td>
+                            <td style="padding:0px;padding-top:10%;"><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
+                        </tr>
+                        <tr class="cart-row-item">
+                            <td style="padding:0px;">username</td>
+                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['username'] }}</h5></td>
+                            <td style="padding:0px;padding-top:10%;">Can't update</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
             <!-- View orders -->
-            <section id="User-view-orders">
-                <h2>Your Orders</h2>
-                {% if orders %}
-                    {% for order in orders %}
-                        <div class="order">
-                            <h3>Order ID: {{ order.order_id }}</h3>
-                            <p><strong>Total Price:</strong> ${{ order.order_total_price }}</p>
-                            <p><strong>Status:</strong> {{ order.order_status }}</p>
-                            <p><strong>Date:</strong> {{ order.order_timestamp }}</p>
-
-                            <!-- Display Order Items -->
-                            <div class="order-items">
-                                <h4>Items:</h4>
-                                {% for item in order.items %}
-                                    <div class="order-item">
-                                        <p><strong>Asset ID:</strong> {{ item.order_items_assets_id }}</p>
-                                        <p><strong>Quantity:</strong> {{ item.order_items_assets_quantity }}</p>
-                                        <p><strong>Price:</strong> ${{ item.order_items_quantity_price }}</p>
-
-                                        <!-- Check if a review exists for this asset -->
-                                        {% set review_exists = false %}
-                                        {% for review in reviews %}
-                                            {% if review.review_asset_id == item.order_items_assets_id %}
-                                                {% set review_exists = true %}
-                                                <button class="review-button" disabled>
-                                                    Your Review: {{ review.review_asset_rating }} stars - {{ review.review_asset_comments }}
-                                                </button>
-                                            {% endif %}
-                                        {% endfor %}
-
-                                        <!-- If no review exists, show the "Review this item" button -->
-                                        {% if not review_exists %}
-                                            <button class="review-button" onclick="toggleReviewSection('{{ item.order_items_assets_id }}')">
-                                                Review this item
-                                            </button>
-                                            <!-- Review Section for this Asset -->
-                                            <div id="review-section-{{ item.order_items_assets_id }}" class="review-section">
-                                                <h4>Write a Review</h4>
-                                                <form onsubmit="submitReview(event, '{{ item.order_items_assets_id }}')">
-                                                    <label for="rating-{{ item.order_items_assets_id }}">Rating:</label>
-                                                    <select id="rating-{{ item.order_items_assets_id }}" required>
-                                                        <option value="1">1 - Poor</option>
-                                                        <option value="2">2 - Fair</option>
-                                                        <option value="3">3 - Good</option>
-                                                        <option value="4">4 - Very Good</option>
-                                                        <option value="5">5 - Excellent</option>
-                                                    </select>
-                                                    <label for="comments-{{ item.order_items_assets_id }}">Comments:</label>
-                                                    <textarea id="comments-{{ item.order_items_assets_id }}" required></textarea>
-                                                    <button type="submit">Submit Review</button>
-                                                </form>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            </div>
+            <section id = "cust-view-orders">
+                <h5>Your orders</h5>
+                
+                {% for singleorder in cust_orders %}
+                
+                <div class="order-details">
+                    <div class="order-header">
+                        <div class="order-id">
+                            <h5>Order Id: {{ singleorder['order_id'] }}</h5>
                         </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No orders found.</p>
-                {% endif %}
+                        <div class="order-timestamp">
+                            <h5>Order Timestamp: {{ singleorder['order_timestamp'] }}</h5>
+                        </div>
+                    </div>
+                    <div class="order-items">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr class="cart-row-item">
+                                    <th>Image</th>
+                                    <th>Description</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                                {% if cust_orders is defined %}
+                                    {% for item in singleorder['single_order_items'] %}
+                                    
+                                    <tr class="cart-row-item">
+                                        <td style="padding:0px;"><img src="/static/images/{{ item['assets_img_name'] }}" style="width: 50px;"></td>
+                                        <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_desc'] }}</h5></td>
+                                        <td style="padding:0px;padding-top:10%;">{{ item['order_items_assets_quantity'] }}</td>
+                                        <td style="padding:0px;padding-top:10%;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
+                                        <td style="padding:0px;padding-top:10%;"><a href="#" style="padding:0px">$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <tr class="cart-row-item">
+                                    <td colspan="5">You don't have any orders yet</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total-price">
+                            <h5>Total order price: {{ singleorder['order_total_price'] }}</h5>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="div-20"> </div>         
+                {% endfor %}
             </section>
 
 
@@ -267,9 +313,10 @@
 
 
 
-                <div onclick="logout()">
-                    <button class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
-                </div>
+            <section class="user-info-footer">
+                <button onclick="landingPage()" class="btn btn-warning" style="background-color: #f7d9e2;">Back to Home Page</button>
+                <button onclick="logout()" class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
+            </section>
 
 
         </div>
