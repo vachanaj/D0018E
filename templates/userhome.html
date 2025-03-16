@@ -52,7 +52,7 @@
             border: 1px solid #ddd;
         }
         th, td {
-            padding: 10px;
+            padding: 1px;
             text-align: left;
         }
         th {
@@ -155,8 +155,11 @@
         .review-section.active {
             display: block; /* Show when active */
         }
-        .user-top-bar{
-            background-color: #f7d9e2;
+        .cust-top-bar{
+            background-color: #ddd;
+            width:100%;
+            
+            border-bottom: 2px solid #f7d9e2
         }
         .order-header{
             display:grid;
@@ -186,32 +189,37 @@
     <div class="dashboard">
         <div class="content">
             <section class="cust-top-bar">
-                <h2>Welcome {{ session['userfirst']}} {{ session['userlast']}}</h2>
+                <h2>
+                    <span>Dashboard for {{ session['userfirst']}} {{ session['userlast']}}               
+                        <button onclick="landingPage()" class="btn" style="background-color: #f7d9e2; margin-left:50%;">Back to Home Page</button>
+                        <button onclick="logout()" class="btn" style="background-color: #f7d9e2;">Logout</button>
+                    </span>  
+                </h2>
             </section>
 
             <section class="cust-user-info">
                 <h5>Your accont information</h5>
-                <table>
+                <table class="table table-striped">
                     <tbody>
-                        <tr class="cart-row-item">
-                            <td style="padding:0px;">First Name</td>
-                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['userfirst'] }}</h5></td>
-                            <td style="padding:0px;padding-top:10%;"><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
+                        <tr class="cust-row-item">
+                            <td >First Name</td>
+                            <td ><h5>{{ session['userfirst'] }}</h5></td>
+                            <td ><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
                         </tr>
-                        <tr class="cart-row-item">
-                            <td style="padding:0px;">Last Name</td>
-                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['userlast'] }}</h5></td>
-                            <td style="padding:0px;padding-top:10%;"><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
+                        <tr class="cust-row-item">
+                            <td >Last Name</td>
+                            <td ><h5>{{ session['userlast'] }}</h5></td>
+                            <td ><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
                         </tr>
-                        <tr class="cart-row-item">
-                            <td style="padding:0px;">email</td>
-                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['useremail'] }}</h5></td>
-                            <td style="padding:0px;padding-top:10%;"><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
+                        <tr class="cust-row-item">
+                            <td >email</td>
+                            <td ><h5>{{ session['useremail'] }}</h5></td>
+                            <td ><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
                         </tr>
-                        <tr class="cart-row-item">
-                            <td style="padding:0px;">username</td>
-                            <td style="padding:0px;padding-top:10%;"><h5>{{ session['username'] }}</h5></td>
-                            <td style="padding:0px;padding-top:10%;">Can't update</td>
+                        <tr class="cust-row-item">
+                            <td >username</td>
+                            <td ><h5>{{ session['username'] }}</h5></td>
+                            <td >Can't update</td>
                         </tr>
                     </tbody>
                 </table>
