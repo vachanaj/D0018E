@@ -278,7 +278,8 @@ def login_user():
 
             # Check if the user is an admin or normal user
             if user['login_role'] == 'admin':
-                return redirect(url_for('admin_page'))  # Redirect to admin page if admin
+                #return redirect(url_for('admin_page'))  # Redirect to admin page if admin
+                return redirect(url_for('index', username=user['login_username']))  # Redirect normal users to homepage with session info
             else:
                 login_id = login.get_login_id(session['username'])
                 cart.create_cart(login_id)  # Get user's cart
@@ -324,6 +325,7 @@ def user_info():
                 cust_orders.append({
                     'order_id': orderid[0],
                     'order_total_price': orderid[2],
+                    'order_status': orderid[3],
                     'order_timestamp': orderid[4],
                     'single_order_items': singleOrderitems
                 })
@@ -348,22 +350,6 @@ def user_info():
         # Redirect to the login page if the user is not logged in
         return redirect(url_for('login_user'))       
 
-
-
-
-#@app.route('/')
-#def index():
-#    assets = product_gallery.get_all_assets()
-#    print(assets)
-
-#    #reviews = reviews.get_all_reviews()
-#    return render_template('index.html', assets=assets)
-
-#@app.route('/')
-#def index():
-#    assets = product_gallery.get_all_assets()
-#    reviews_data = reviews.get_all_reviews()  # Fetch reviews
-#    return render_template('index.html', assets=assets, reviews=reviews_data)
 
 @app.route('/')
 def index():

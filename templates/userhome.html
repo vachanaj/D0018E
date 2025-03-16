@@ -137,7 +137,7 @@
             margin-top: 0;
         }
         .order-items {
-            margin-left: 20px;
+            margin: 0px;
         }
         .order-item {
             margin-bottom: 10px;
@@ -156,19 +156,15 @@
             display: block; /* Show when active */
         }
         .cust-top-bar{
-            background-color: #ddd;
+            background-color: #f7d9e2;
             width:100%;
-            
-            border-bottom: 2px solid #f7d9e2
         }
         .order-header{
             display:grid;
-            grid-template-columns: auto auto;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             background-color: #f7d9e2;
         }
-        .order-footer{
-            background-color: #f7d9e2;
-        }
+        
         .order-details{
             
             border: 1px solid lightgrey;
@@ -183,6 +179,13 @@
             width: 100%;
             overflow-y: auto;
         }
+        .order-row-item .order-row-header{
+            display: grid;
+            grid-template-columns: 15% 30% 5% 10% 15% 25%;
+        }
+        .order-row-item > tr >td {
+            padding:0px;
+        }
     </style>
 </head>
 <body>
@@ -191,8 +194,8 @@
             <section class="cust-top-bar">
                 <h2>
                     <span>Dashboard for {{ session['userfirst']}} {{ session['userlast']}}               
-                        <button onclick="landingPage()" class="btn" style="background-color: #f7d9e2; margin-left:50%;">Back to Home Page</button>
-                        <button onclick="logout()" class="btn" style="background-color: #f7d9e2;">Logout</button>
+                        <button onclick="landingPage()" class="btn" style="margin-left:50%;">Back to Home Page</button>
+                        <button onclick="logout()" class="btn" >Logout</button>
                     </span>  
                 </h2>
             </section>
@@ -204,22 +207,18 @@
                         <tr class="cust-row-item">
                             <td >First Name</td>
                             <td ><h5>{{ session['userfirst'] }}</h5></td>
-                            <td ><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
                         </tr>
                         <tr class="cust-row-item">
                             <td >Last Name</td>
                             <td ><h5>{{ session['userlast'] }}</h5></td>
-                            <td ><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
                         </tr>
                         <tr class="cust-row-item">
                             <td >email</td>
                             <td ><h5>{{ session['useremail'] }}</h5></td>
-                            <td ><button onclick="update()" class="btn btn-light" style="background-color: #f7d9e2;">Update</button></td>
                         </tr>
                         <tr class="cust-row-item">
                             <td >username</td>
                             <td ><h5>{{ session['username'] }}</h5></td>
-                            <td >Can't update</td>
                         </tr>
                     </tbody>
                 </table>
@@ -234,31 +233,43 @@
                 <div class="order-details">
                     <div class="order-header">
                         <div class="order-id">
-                            <h5>Order Id: {{ singleorder['order_id'] }}</h5>
+                            <span>Order Id:</span><span style="color:white;background-color:black;"> {{ singleorder['order_id'] }} </span>
                         </div>
                         <div class="order-timestamp">
-                            <h5>Order Timestamp: {{ singleorder['order_timestamp'] }}</h5>
+                            <span>Order Timestamp:</span><span style="color:white;background-color:black;"> {{ singleorder['order_timestamp'] }} </span>
+                        </div>
+                        <div class="order-status">
+                            <span>Order Status:</span><span style="color:white;background-color:black;"> {{ singleorder['order_status'] }} </span>
+                        </div>
+                        <div class="order-total-price">
+                            <span>Total order price: </span> <span style="color:white;background-color:black;">$ {{ singleorder['order_total_price'] }}</span>
                         </div>
                     </div>
                     <div class="order-items">
                         <table class="table table-striped">
                             <tbody>
-                                <tr class="cart-row-item">
+                                <tr class="order-row-header">
                                     <th>Image</th>
                                     <th>Description</th>
                                     <th>Qty</th>
                                     <th>Price</th>
                                     <th>Total</th>
+                                    <th>Rate & Review</th>
                                 </tr>
                                 {% if cust_orders is defined %}
                                     {% for item in singleorder['single_order_items'] %}
                                     
-                                    <tr class="cart-row-item">
+                                    <tr class="order-row-item">
                                         <td style="padding:0px;"><img src="/static/images/{{ item['assets_img_name'] }}" style="width: 50px;"></td>
-                                        <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_desc'] }}</h5></td>
-                                        <td style="padding:0px;padding-top:10%;">{{ item['order_items_assets_quantity'] }}</td>
-                                        <td style="padding:0px;padding-top:10%;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
-                                        <td style="padding:0px;padding-top:10%;"><a href="#" style="padding:0px">$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</a></td>
+                                        <td style="padding:0px;"><h5>{{ item['assets_desc'] }}</h5></td>
+                                        <td style="padding:0px;">{{ item['order_items_assets_quantity'] }}</td>
+                                        <td style="padding:0px;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
+                                        <td style="padding:0px;"><h5>$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</h5></td>
+                                        {% if singleorder['order_status'] == "Pending" %}
+                                        <td style="padding:0px;">Can't edit while pening</td>
+                                        {% else %}
+                                        <td style="padding:0px;"><button class="btn">Rate This</button></td>
+                                        {% endif %}
                                     </tr>
                                     {% endfor %}
                                 {% else %}
@@ -269,17 +280,11 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="order-footer">
-                        <div class="order-total-price">
-                            <h5>Total order price: {{ singleorder['order_total_price'] }}</h5>
-                        </div>
-                    </div>
                     
                 </div>
                 <div class="div-20"> </div>         
                 {% endfor %}
             </section>
-
 
             
             <!-- View reviews -->
@@ -318,14 +323,6 @@
                     {% endif %}
                 </div>
             </section>
-
-
-
-            <section class="user-info-footer">
-                <button onclick="landingPage()" class="btn btn-warning" style="background-color: #f7d9e2;">Back to Home Page</button>
-                <button onclick="logout()" class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
-            </section>
-
 
         </div>
     </div>

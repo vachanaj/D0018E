@@ -429,13 +429,16 @@
                         <div class="product-info">
                             <h4>{{ asset[2] }}</h4>
                             <p>{{ asset[3] }} kr</p>
-            
-                            {% if asset[0] in reviews_by_asset %}
-                                {% for review in reviews_by_asset[asset[0]] %}
+                            
+                            {% if reviews_by_asset|selectattr('review_asset_id', 'equalto', asset[0])|list %}
+                                
+                                {% for review in reviews_by_asset %}
+                                {% if review.review_asset_id == asset[0] %}
                                     <div class="product-rating">
-                                        <strong>{{ review.review_asset_rating }}:</strong> 
+                                        
                                         {{ '❤️' * review.review_asset_rating }} {{ '🤍' * (5 - review.review_asset_rating) }}
                                     </div>
+                                    {% endif %}
                                 {% endfor %}
                             {% else %}
                                 <p>No reviews yet.</p>
