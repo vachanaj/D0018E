@@ -2,6 +2,38 @@ import db_connector
 
 db = db_connector.db
 
+def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=None, author_role='customer'):
+    if not db.is_connected():
+        return False  # Database connection failed
+
+    # Validate inputs
+    if not user_id or not asset_id or not review_text:
+        print("Error: user_id, asset_id, and review_text are required.")
+        return False
+
+    # Ensure rating is only set for customer reviews (not replies)
+    if parent_review_id is not None:
+        rating = None  # Replies (admin or customer) should not have a rating
+
+    # Ensure rating is valid (1 to 5) if provided
+    if rating is not None and (rating < 1 or rating > 5):
+        print("Error: Rating must be between 1 and 5.")
+        return False
+
+    try:
+        cursor = db.cursor()
+        query = """
+        INSERT INTO reviews 
+        (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at) 
+        VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        """
+        cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role))
+        db.commit()
+        cursor.close()
+        return True
+    except Exception as e:
+        print(f"Error inserting review: {e}")
+        return False
 
 def get_reviews_for_user_and_item(login_id, asset_id):
     if db.is_connected():
@@ -140,38 +172,38 @@ def get_review_by_id(review_id):
 #        print(f"Error inserting review: {e}")
 #        return False
 
-def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=None, author_role='customer'):
-    if not db.is_connected():
-        return False  # Database connection failed
-
-    # Validate inputs
-    if not user_id or not asset_id or not review_text:
-        print("Error: user_id, asset_id, and review_text are required.")
-        return False
-
-    # Ensure rating is only set for customer reviews (not replies)
-    if parent_review_id is not None:
-        rating = None  # Replies (admin or customer) should not have a rating
-
-    # Ensure rating is valid (1 to 5) if provided
-    if rating is not None and (rating < 1 or rating > 5):
-        print("Error: Rating must be between 1 and 5.")
-        return False
-
-    try:
-        cursor = db.cursor()
-        query = """
-        INSERT INTO reviews 
-        (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at) 
-        VALUES (%s, %s, %s, %s, %s, %s, NOW())
-        """
-        cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role))
-        db.commit()
-        cursor.close()
-        return True
-    except Exception as e:
-        print(f"Error inserting review: {e}")
-        return False
+#def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=None, author_role='customer'):
+#    if not db.is_connected():
+#        return False  # Database connection failed
+#
+#    # Validate inputs
+#    if not user_id or not asset_id or not review_text:
+#        print("Error: user_id, asset_id, and review_text are required.")
+#        return False
+#
+#    # Ensure rating is only set for customer reviews (not replies)
+#    if parent_review_id is not None:
+#        rating = None  # Replies (admin or customer) should not have a rating
+#
+#    # Ensure rating is valid (1 to 5) if provided
+#    if rating is not None and (rating < 1 or rating > 5):
+#        print("Error: Rating must be between 1 and 5.")
+#        return False
+#
+#    try:
+#        cursor = db.cursor()
+#        query = """
+#        INSERT INTO reviews 
+#        (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at) 
+#        VALUES (%s, %s, %s, %s, %s, %s, NOW())
+#        """
+#        cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role))
+#        db.commit()
+#        cursor.close()
+#        return True
+#    except Exception as e:
+#        print(f"Error inserting review: {e}")
+#        return False
     
 def delete_review(review_id):
     if db.is_connected():
