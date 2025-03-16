@@ -275,8 +275,9 @@
         </div>
     </div>
 
-<script>
 
+
+<script>
     // Function to toggle the review section for a specific asset
     function toggleReviewSection(assetId) {
         const reviewSection = document.getElementById(`review-section-${assetId}`);
@@ -303,48 +304,82 @@
         alert("Review submitted successfully!");
         toggleReviewSection(assetId); // Hide the review section after submission
     }
-    
-    function saveResponse(reviewId) {
-    const response = document.getElementById(`response-${reviewId}`).value;
 
-    if (!response) {
-        alert("Please write a response before submitting.");
-        return;
+    function testFunction() {
+        console.log("Test button clicked!");
+        alert("Test button clicked!");
+    }
+    
+</script>
+
+<!-- FIRST SCRIPT (loads functions) -->
+<script>
+    function saveResponse(reviewId) {
+        console.log("saveResponse called with reviewId:", reviewId);
+        const responseInput = document.getElementById(`response-${reviewId}`);
+
+        if (!responseInput) {
+            alert("Response input field not found.");
+            return;
+        }
+
+        const response = responseInput.value;
+        console.log("Response:", response);
+
+        if (!response) {
+            alert("Please write a response before submitting.");
+            return;
+        }
+
+        fetch(`/customer/reply/${reviewId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                response: response,
+                author_role: 'customer'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Failed to save response');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Response saved successfully');
+                location.reload();
+            } else {
+                throw new Error(data.message || 'Failed to save response');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
     }
 
-    fetch(`/customer/reply/${reviewId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            response: response,
-            author_role: 'customer'  // Explicitly set the role
-        }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            // Handle HTTP errors (e.g., 4xx or 5xx status codes)
-            return response.json().then(data => {
-                throw new Error(data.message || 'Failed to save response');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            alert('Response saved successfully');
-            location.reload();  // Reload the page to reflect changes
-        } else {
-            throw new Error(data.message || 'Failed to save response');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(`Error: ${error.message}`);
-    });
-}
+    // Attach function to global scope
+    window.saveResponse = saveResponse;
+    console.log("saveResponse function has been defined.");
 </script>
+
+<!-- SECOND SCRIPT (triggers functions after DOM loads) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM fully loaded. Checking saveResponse...");
+        console.log(typeof window.saveResponse); // Should be 'function'
+
+        if (typeof window.saveResponse === "undefined") {
+            alert("saveResponse function is missing!");
+        }
+    });
+</script>
+
 
 </body>
 </html>
