@@ -142,6 +142,7 @@
 
 
             <!-- View reviews -->
+            
             <section id="comments">
                 <div class="container">
                     <h1>Your Reviews and Responses</h1>
@@ -151,22 +152,21 @@
                                 <p><strong>Your Review:</strong> {{ review.review_asset_comments }}</p>
                                 <p><strong>Rating:</strong> {{ review.review_asset_rating }}</p>
                                 <p><strong>Date:</strong> {{ review.created_at }}</p>
-            
+
                                 <!-- Display Admin Replies -->
                                 {% if review.replies %}
                                     <h3>Admin Responses:</h3>
-                                    {% for reply in review.replies %}
-                                        <div class="reply">
-                                            <p><strong>Admin:</strong> {{ reply.review_asset_comments }}</p>
-                                            <p><strong>Date:</strong> {{ reply.created_at }}</p>
-            
-                                            <!-- Reply Form for User -->
-                                            <div class="reply-form">
-                                                <input type="text" id="response-{{ reply.review_id }}" placeholder="Write your response here">
-                                                <button onclick="saveResponse('{{ reply.review_id }}')">Reply</button>
-                                            </div>
+                                    {% set latest_reply = review.replies[-1] %}  <!-- Get the latest admin reply -->
+                                    <div class="reply">
+                                        <p><strong>Admin:</strong> {{ latest_reply.review_asset_comments }}</p>
+                                        <p><strong>Date:</strong> {{ latest_reply.created_at }}</p>
+
+                                        <!-- Reply Form for User -->
+                                        <div class="reply-form">
+                                            <input type="text" id="response-{{ latest_reply.review_id }}" placeholder="Write your response here">
+                                            <button onclick="saveResponse('{{ latest_reply.review_id }}')">Reply</button>
                                         </div>
-                                    {% endfor %}
+                                    </div>
                                 {% endif %}
                             </div>
                         {% endfor %}
@@ -174,8 +174,6 @@
                         <p>No reviews found.</p>
                     {% endif %}
                 </div>
-            
-
             </section>
 
 
@@ -190,37 +188,37 @@
 
 <script>
     function saveResponse(reviewId) {
-        const response = document.getElementById(`response-${reviewId}`).value;
+    const response = document.getElementById(`response-${reviewId}`).value;
 
-        if (!response) {
-            alert("Please write a response before submitting.");
-            return;
-        }
-
-        fetch(`/customer/reply/${reviewId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                response: response,
-                author_role: 'customer'  // Explicitly set the role
-            }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Response saved successfully');
-                location.reload();  // Reload the page to reflect changes
-            } else {
-                alert('Failed to save response: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while saving the response.');
-        });
+    if (!response) {
+        alert("Please write a response before submitting.");
+        return;
     }
+
+    fetch(`/customer/reply/${reviewId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            response: response,
+            author_role: 'customer'  // Explicitly set the role
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Response saved successfully');
+            location.reload();  // Reload the page to reflect changes
+        } else {
+            alert('Failed to save response: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving the response.');
+    });
+}
 </script>
 
 </body>

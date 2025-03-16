@@ -28,6 +28,22 @@ def get_db_connection():
     conn = db_connector.get_connection()  # Assuming db_connector has a function to get a connection
     return conn
 
+@app.route('/userhome')
+def user_home():
+    if 'username' in session:
+        user_id = session.get('username')  # Get the logged-in user's ID
+        asset_id = 1  # Hardcode the asset ID for now (replace with dynamic value later)
+
+        # Fetch reviews for the logged-in user and the specific item
+        reviews_data = reviews.get_reviews_for_user_and_item(user_id, asset_id)
+        print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
+
+        # Pass reviews to the template
+        return render_template('userhome.html', reviews=reviews_data)
+    else:
+        # Redirect to the login page if the user is not logged in
+        return redirect(url_for('login_user'))
+
 @app.route('/customer/reply/<int:review_id>', methods=['POST'])
 def customer_reply(review_id):
     data = request.get_json()
@@ -35,13 +51,13 @@ def customer_reply(review_id):
 
     response_text = data.get('response')
     author_role = data.get('author_role', 'customer')  # Default to 'customer'
-    user_id = session.get('username')  # Get the logged-in user's ID
+    user_id = session.get('username')  # Get the logged-in user's username
 
     if not response_text or not user_id:
         print("Invalid request: Missing response_text or user_id")  # Debugging
         return jsonify({'success': False, 'message': 'Invalid request'})
 
-    # Fetch the original review to get the asset_id
+    # Fetch the original review to get the asset_id and login_id
     original_review = reviews.get_review_by_id(review_id)
     if not original_review:
         print("Original review not found")  # Debugging
@@ -52,13 +68,13 @@ def customer_reply(review_id):
         user_id=user_id,
         asset_id=original_review['review_asset_id'],
         review_text=response_text,
-        parent_review_id=review_id,  # Link to the original review
+        parent_review_id=review_id,  # Link to the latest admin reply
         author_role=author_role
     ):
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'message': 'Failed to save response'})
-        
+
 
 @app.route('/admin/reply/<int:review_id>', methods=['POST'])
 def admin_reply(review_id):
@@ -94,25 +110,6 @@ def admin_reply(review_id):
     else:
         return jsonify({'success': False, 'message': 'Failed to save response'})
 
-# Admin Dashboard Route
-#@app.route('/admin/dashboard')
-#def admin_page():
-#    if 'username' in session and session['role'] == 'admin':
-#        try:
-#            # Get the database connection from db_connector
-#            db = db_connector.db
-#            if db and db.is_connected():
-#                cursor = db.cursor(dictionary=True)  # Use dictionary=True to get results as dictionaries
-#                cursor.execute('SELECT * FROM assets')  # Fetch all assets from the database
-#                assets = cursor.fetchall()  # Fetch all rows
-#                cursor.close()
-#                return render_template('admin.html', assets=assets)  # Pass assets to the template
-#            else:
-#                return "Database connection failed. Please check your connection.", 500
-#        except Exception as e:
-#            print(f"Error fetching assets: {e}")
-#            return "An error occurred while fetching assets.", 500
-#    return redirect(url_for('login'))  # Redirect to login if not an admin
 
 # Admin Dashboard Route
 @app.route('/admin/dashboard')
@@ -304,17 +301,49 @@ def logout():
     print("Logged out successfully!")
     return redirect('/')  # back to start after logout
 
+#@app.route('/user-info')
+#def user_info():
+    
+#    print("user info for user:", session['username'])
+    
+#    # Check if the user is an admin or normal user
+#    if session['role'] == 'admin':
+#        return redirect(url_for('admin_page'))  # Redirect to admin page if admin
+#    else:
+#        return render_template('userhome.html')  # Redirect normal users to homepage with session info
+
+
 @app.route('/user-info')
 def user_info():
-    
-    print("user info for user:", session['username'])
-    
-    # Check if the user is an admin or normal user
-    if session['role'] == 'admin':
-        return redirect(url_for('admin_page'))  # Redirect to admin page if admin
+    if 'username' in session:
+        print("user info for user:", session['username'])
+        
+        # Check if the user is an admin or normal user
+        if session['role'] == 'admin':
+            return redirect(url_for('admin_page'))  # Redirect to admin page if admin
+        else:
+            username = session['username']  # Get the logged-in user's username
+            asset_id = 2  # Hardcode the asset ID for now (replace with dynamic value later)
+
+            # Fetch the login_id for the logged-in user
+            login_id = reviews.get_login_id_by_username(username)  # Use reviews.get_login_id_by_username
+            if not login_id:
+                return jsonify({'success': False, 'message': 'User not found'})
+
+            print(f"Fetching reviews for login_id: {login_id}, asset_id: {asset_id}")  # Debugging
+
+            # Fetch reviews for the logged-in user and the specific item
+            reviews_data = reviews.get_reviews_for_user_and_item(login_id, asset_id)
+            print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
+
+            # Pass reviews to the template
+            return render_template('userhome.html', reviews=reviews_data)
     else:
-        return render_template('userhome.html')  # Redirect normal users to homepage with session info
-    
+        # Redirect to the login page if the user is not logged in
+        return redirect(url_for('login_user'))       
+
+
+
 
 #@app.route('/')
 #def index():
