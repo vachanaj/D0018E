@@ -20,7 +20,7 @@ def validate_login(username, password):
     #print(f"Attempting login: {username}, {password}")  # Debugging
     if db.is_connected():
         cursor = db.cursor(dictionary=True)  # Return results as a dictionary
-        query = "SELECT login_username, login_role FROM login WHERE login_username = %s AND login_password = %s"
+        query = "SELECT login_username, login_role, login_first_name, login_last_name, login_email FROM login WHERE login_username = %s AND login_password = %s"
         cursor.execute(query, (username, password))
         user = cursor.fetchone()
         cursor.close()

@@ -25,7 +25,24 @@ def get_order_id(user_id):
             cursor.execute(query, (user_id, user_id))
             order_id = cursor.fetchone()
             cursor.close()
-            print("get_order_id: ", order_id)
+            #print("get_order_id: ", order_id)
             return order_id
+        except:
+            return None
+        
+def get_order_ids(user_id):
+    if db.is_connected():
+        try:
+            cursor = db.cursor()
+            #query = "SELECT order_id FROM orders WHERE order_login_id = %s AND order_id = (SELECT MAX(order_id) FROM orders WHERE order_login_id = %s)"
+            query = "SELECT * FROM orders WHERE order_login_id = %s"
+            user_id = user_id[0]
+            cursor.execute(query, (user_id,))
+            order_ids = cursor.fetchall()
+            #for order_id in order_ids:
+                #print("get_order_id: ", order_id[0])
+            cursor.close()
+            
+            return order_ids
         except:
             return None

@@ -241,8 +241,12 @@ def login_user():
         
         if user:
             # Store user information in session
+            session['userfirst'] = user['login_first_name']
+            session['userlast'] = user['login_last_name']
             session['username'] = user['login_username']
             session['role'] = user['login_role']
+            session['useremail'] = user['login_email']
+           
 
             # Check if the user is an admin or normal user
             if user['login_role'] == 'admin':
@@ -276,27 +280,29 @@ def logout():
 def user_info():
     
     print("user info for user:", session['username'])
-    
+    login_id = login.get_login_id(session['username'])
+    print("login Id: ", login_id)
+    cust_order_ids = orders.get_order_ids(login_id)
+    print("order Ids: ", cust_order_ids)
+    cust_orders = []
+    for orderid in cust_order_ids:
+        singleOrderitems = order_items.get_order_items(orderid[0])
+        print("single order items", singleOrderitems)
+        cust_orders.append({
+            'order_id': orderid[0],
+            'order_total_price': orderid[2],
+            'order_timestamp': orderid[4],
+            'single_order_items': singleOrderitems
+        })
+    #print("cust_orders: ", cust_orders)
+   
+
     # Check if the user is an admin or normal user
     if session['role'] == 'admin':
         return redirect(url_for('admin_page'))  # Redirect to admin page if admin
     else:
-        return render_template('userhome.html')  # Redirect normal users to homepage with session info
+        return render_template('userhome.html', cust_orders=cust_orders)  # Redirect normal users to homepage with session info
     
-
-#@app.route('/')
-#def index():
-#    assets = product_gallery.get_all_assets()
-#    print(assets)
-
-#    #reviews = reviews.get_all_reviews()
-#    return render_template('index.html', assets=assets)
-
-#@app.route('/')
-#def index():
-#    assets = product_gallery.get_all_assets()
-#    reviews_data = reviews.get_all_reviews()  # Fetch reviews
-#    return render_template('index.html', assets=assets, reviews=reviews_data)
 
 @app.route('/')
 def index():
@@ -415,31 +421,6 @@ def get_cart_items():
 @app.route('/shoppingcart')
 def shoppingcart():
     return render_template('shoppingcart.html', public_key=PUBLIC_KEY)
-
-# @app.route('/create-checkout-session', methods=['POST'])
-# def create_checkout_session():
-#     try:
-#         session = stripe.checkout.Session.create(
-#             payment_method_types=['card'],
-#             line_items=[
-#                 {
-#                     'price_data': {
-#                         'currency': 'usd',
-#                         'product_data': {
-#                             'name': 'Sample Item'
-#                         },
-#                         'unit_amount': 2000,  # $20.00 in cents
-#                     },
-#                     'quantity': 1,
-#                 },
-#             ],
-#             mode='payment',
-#             success_url=request.host_url + 'checkout-success',
-#             cancel_url=request.host_url + 'shoppingcart',
-#         )
-#         return jsonify({'url': session.url})
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
 
 
 @app.route('/create-checkout-session', methods=['POST'])

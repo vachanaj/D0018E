@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>doReview</title>
     <style>
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
+        }
+        .user-top-bar{
+            background-color: #f7d9e2;
         }
         .dashboard {
             display: flex;
@@ -79,31 +83,128 @@
             margin-bottom: 10px;
             box-sizing: border-box;
         }
+        .order-header{
+            display:grid;
+            grid-template-columns: auto auto;
+            background-color: #f7d9e2;
+        }
+        .order-footer{
+            background-color: #f7d9e2;
+        }
+        .order-details{
+            
+            border: 1px solid lightgrey;
+            padding:20px;
+            
+        }
+        .div-20{
+            height:20px;
+        }
+        .cust-view-orders{
+            height:100px;
+            width: 100%;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="content">
-            <h1>User Dashboard</h1>
+            <section class="cust-top-bar">
+                <h2>Welcome {{ session['userfirst']}} {{ session['userlast']}}</h2>
+            </section>
 
             <!-- View orders -->
-            <section id = "User-view-orders">
-                <h2>Your orders</h2>
-
+            <section id = "cust-view-orders">
+                <h5>Your orders</h5>
+                
+                {% for singleorder in cust_orders %}
+                
+                <div class="order-details">
+                    <div class="order-header">
+                        <div class="order-id">
+                            <h5>Order Id: {{ singleorder['order_id'] }}</h5>
+                        </div>
+                        <div class="order-timestamp">
+                            <h5>Order Timestamp: {{ singleorder['order_timestamp'] }}</h5>
+                        </div>
+                    </div>
+                    <div class="order-items">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr class="cart-row-item">
+                                    <th>Image</th>
+                                    <th>Description</th>
+                                    <th>Qty</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                                {% if cust_orders is defined %}
+                                    {% for item in singleorder['single_order_items'] %}
+                                    
+                                    <tr class="cart-row-item">
+                                        <td style="padding:0px;"><img src="/static/images/{{ item['assets_img_name'] }}" style="width: 50px;"></td>
+                                        <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_desc'] }}</h5></td>
+                                        <td style="padding:0px;padding-top:10%;">{{ item['order_items_assets_quantity'] }}</td>
+                                        <td style="padding:0px;padding-top:10%;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
+                                        <td style="padding:0px;padding-top:10%;"><a href="#" style="padding:0px">$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <tr class="cart-row-item">
+                                    <td colspan="5">You don't have any orders yet</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total-price">
+                            <h5>Total order price: {{ singleorder['order_total_price'] }}</h5>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="div-20"> </div>         
+                {% endfor %}
             </section>
 
 
                 <!-- view and answer reviews -->
                 <section id = "User-messages">
-                    <h2>Your Reviews</h2>
-    
+                    <h5>Your Reviews</h5>
+                    <table class="table table-striped">
+                    
+                        <tbody id = "cart-items">
+                            <tr class="cart-row-item">
+                                <th>Description</th>
+                                <th>Your Review</th>
+                                <th>Response from Store</th>
+                            </tr>
+                            {% if order_items is defined %}
+                                {% for item in order_items %}
+                                 
+                                <tr class="cart-row-item">
+                                    <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_desc'] }}</h5></td>
+                                    <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_review']}}</h5></td>
+                                    <td style="padding:0px;padding-top:10%;"><h5>{{ item['assets_review_response']}}</h5></td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                            <tr class="cart-row-item">
+                                <td colspan="3">You don't have any orders yet</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </section>
 
 
 
-                <div onclick="logout()">
-                    <button class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
-                </div>
+                <section class="user-info-footer">
+                    <button onclick="landingPage()" class="btn btn-warning" style="background-color: #f7d9e2;">Back to Home Page</button>
+                    <button onclick="logout()" class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
+                </section>
 
 
         </div>

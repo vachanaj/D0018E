@@ -195,8 +195,8 @@
             });
         }
 
-        function userInfo() {
-            fetch('/user-info')
+        function landingPage() {
+            fetch('/')
             .then(response => response.text())
             .then(data => {
                 console.log(data);
@@ -206,9 +206,20 @@
             });
         }
 
+        function userInfo() {
+            fetch('/user-info')
+            .then(response => response.text())
+            .then(data => {
+                
+                document.getElementById('full-page').innerHTML = data;
+
+                //document.getElementById('content-page').innerHTML = data;
+            });
+        }
+
         function getProductReview(div){
             let product = div.parentElement.parentElement.parentElement;
-            console.log(product);
+            
             // Extract product details
             let productData = {
                 productId: product.getAttribute("product-id")
