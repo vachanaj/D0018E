@@ -16,7 +16,7 @@ def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=Non
         rating = None  # Replies (admin or customer) should not have a rating
 
     # Ensure rating is valid (1 to 5) if provided
-    if rating is not None and (rating < 1 or rating > 5):
+    if rating is None:
         print("Error: Rating must be between 1 and 5.")
         return False
 
@@ -56,30 +56,30 @@ def get_reviews_for_user_and_item(login_id, asset_id):
         # Organize reviews into a hierarchical structure
         review_dict = {}
         for review in reviews:
-            print(f"Processing review: {review}")  # Debugging: Print each review being processed
+            #print(f"Processing review: {review}")  # Debugging: Print each review being processed
 
             if review['parent_review_id'] is None:
                 # This is a top-level review
-                print(f"Top-level review found: {review['review_id']}")  # Debugging
+                #print(f"Top-level review found: {review['review_id']}")  # Debugging
                 review_dict[review['review_id']] = {
                     **review,
                     'replies': []
                 }
             else:
                 # This is a reply to a review
-                print(f"Reply found: {review['review_id']} (Parent ID: {review['parent_review_id']})")  # Debugging
+                #print(f"Reply found: {review['review_id']} (Parent ID: {review['parent_review_id']})")  # Debugging
                 if review['parent_review_id'] in review_dict:
-                    print(f"Adding reply to parent review: {review['parent_review_id']}")  # Debugging
+                    #print(f"Adding reply to parent review: {review['parent_review_id']}")  # Debugging
                     review_dict[review['parent_review_id']]['replies'].append(review)
                 else:
                     print(f"Parent review not found for reply: {review['parent_review_id']}")  # Debugging
 
         # Debugging: Print the organized reviews
-        print("Organized reviews:", review_dict)
+        #print("Organized reviews:", review_dict)
 
         # Filter reviews to only include those by the logged-in user
         user_reviews = [review for review in review_dict.values() if review['review_login_id'] == login_id]
-        print("Filtered user reviews:", user_reviews)  # Debugging: Print filtered reviews
+        #print("Filtered user reviews:", user_reviews)  # Debugging: Print filtered reviews
 
         return user_reviews
     else:

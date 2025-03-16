@@ -282,7 +282,7 @@
                                         {% if singleorder['order_status'] == "Pending" %}
                                         <td style="padding:0px;">Can't edit while pening</td>
                                         {% else %}
-                                        <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
+                                        <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
                                         {% endif %}
                                     </tr>
                                     {% endfor %}
@@ -360,9 +360,10 @@
           </button>
         </div>
         <div class="modal-body">
+            
             <h5 id="reviewModalLabel"></h5>
             <img id="reviewModalImage" style="width: 50px;">
-            <form name="customer-review" onsubmit="submitReview(event, target-data)">
+            <div name="customer-review" >
                 <div class="form-group">
                     <label>Your Rating</label>
                     <div id="rating" class="rating">
@@ -373,6 +374,7 @@
                         <span class="heart" data-value="5" onclick="heartSelector(5)">&#x2661;</span>
                     </div>
                     <input type="hidden" id="rating-value" required>
+                    <input type="hidden" id="asset_id" required>
                     
                     <script>
                         
@@ -380,10 +382,10 @@
                 </div>
                 <div class="form-group">
                     <label >Your Comments</label>
-                    <textarea class="form-control" id="comments" rows="3" required></textarea>
+                    <textarea class="form-control" id="review-comments" rows="3" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit Review</button>
-            </form>
+                <button onclick="submitReview()" class="btn btn-primary">Submit Review</button>
+            </div>
         </div>
         <div class="modal-footer">
           
@@ -406,26 +408,7 @@
         reviewSection.classList.toggle('active');
     }
 
-    // Function to handle review submission (frontend only for now)
-    function submitReview(event, assetId) {
-        event.preventDefault(); // Prevent form submission
-
-        const rating = document.getElementById(`rating-${assetId}`).value;
-        const comments = document.getElementById(`comments-${assetId}`).value;
-
-        if (!rating || !comments) {
-            alert("Please fill out all fields before submitting.");
-            return;
-        }
-
-        // For now, just display the review data
-        console.log("Review submitted for Asset ID:", assetId);
-        console.log("Rating:", rating);
-        console.log("Comments:", comments);
-
-        alert("Review submitted successfully!");
-        toggleReviewSection(assetId); // Hide the review section after submission
-    }
+    
 
 
     

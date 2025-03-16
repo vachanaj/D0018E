@@ -63,8 +63,8 @@ def get_order_items(order_id):
         '''
         cursor.execute(query, (order_id,))
         order_items = cursor.fetchall()
-        for item in order_items:
-            print("item in items: ", item)
+        #for item in order_items:
+            #print("item in items: ", item)
         cursor.close()
         return order_items
     else:

@@ -315,13 +315,13 @@ def user_info():
             return redirect(url_for('admin_page'))  # Redirect to admin page if admin
         else:
             login_id = login.get_login_id(session['username'])
-            print("login Id: ", login_id)
+            #print("login Id: ", login_id)
             cust_order_ids = orders.get_order_ids(login_id)
-            print("order Ids: ", cust_order_ids)
+            #print("order Ids: ", cust_order_ids)
             cust_orders = []
             for orderid in cust_order_ids:
                 singleOrderitems = order_items.get_order_items(orderid[0])
-                print("single order items", singleOrderitems)
+                #print("single order items", singleOrderitems)
                 cust_orders.append({
                     'order_id': orderid[0],
                     'order_total_price': orderid[2],
@@ -338,11 +338,11 @@ def user_info():
             #if not login_id:
                 #return jsonify({'success': False, 'message': 'User not found'})
 
-            print(f"Fetching reviews for login_id: {review_login_id}, asset_id: {asset_id}")  # Debugging
+            #print(f"Fetching reviews for login_id: {review_login_id}, asset_id: {asset_id}")  # Debugging
 
             # Fetch reviews for the logged-in user and the specific item
             reviews_data = reviews.get_reviews_for_user_and_item(review_login_id, asset_id)
-            print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
+            #print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
 
             # Pass reviews to the template
             return render_template('userhome.html', cust_orders=cust_orders, reviews=reviews_data)
@@ -350,6 +350,22 @@ def user_info():
         # Redirect to the login page if the user is not logged in
         return redirect(url_for('login_user'))       
 
+@app.route('/cust_product_review', methods=['GET', 'POST'])
+def cust_product_review():
+    print("customer product review called")
+    data = request.json
+    user_id = login.get_login_id(session['username'])
+    user_id = user_id[0]
+    asset_id = data['asset_id']
+    rating = data['rating']
+    comments = data['comments']
+    print("user_id", user_id)
+    print("asset_id", asset_id)
+    print("rating", rating)
+    print("comment", comments)
+    
+    reviews.add_review(user_id, asset_id, comments, rating)
+    return jsonify({"success": True, "message": "Review added successfully"})
 
 @app.route('/')
 def index():
