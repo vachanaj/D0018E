@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>doReview</title>
     <style>
-
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f4;
-        }
-        .user-top-bar{
-            background-color: #f7d9e2;
         }
         .dashboard {
             display: flex;
@@ -164,9 +160,7 @@
 <body>
     <div class="dashboard">
         <div class="content">
-            <section class="cust-top-bar">
-                <h2>Welcome {{ session['userfirst']}} {{ session['userlast']}}</h2>
-            </section>
+            <h1>User Dashboard</h1>
 
             <!-- View orders -->
             <section id="User-view-orders">
@@ -273,10 +267,9 @@
 
 
 
-                <section class="user-info-footer">
-                    <button onclick="landingPage()" class="btn btn-warning" style="background-color: #f7d9e2;">Back to Home Page</button>
-                    <button onclick="logout()" class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
-                </section>
+                <div onclick="logout()">
+                    <button class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
+                </div>
 
 
         </div>
