@@ -118,7 +118,27 @@
             })
             .catch(error => console.error("Error:", error));
         }
+        
+        function reviewProduct(productName, productImage) {
+        //console.log("productName: ",productName)
+        
+        productImageFileName = '/static/images/'+productImage;
+        $(".modal-body #reviewModalLabel").html(productName);
+        //console.log("productImageFileName: ",productImageFileName)
+        $(".modal-body #reviewModalImage").attr('src', productImageFileName)
+    };
 
+        function heartSelector(count) {
+            
+            document.getElementById('rating-value').value = count;
+            document.querySelectorAll('.rating .heart').forEach(h => {
+                h.classList.remove('selected');
+                if (h.getAttribute('data-value') <= count) {
+                    h.classList.add('selected');
+                }
+            })
+        }
+        
 
         function removeItem(productId) {
             console.log("product_id:"+ productId);
@@ -289,7 +309,7 @@
             
             <div class = "top-bar-middle">
                 <div class="search-container position-relative">
-                    <form class="d-flex align-items-center">
+                    <form name="keyword-search" class="d-flex align-items-center">
                         <input class="form-control search-input ps-5" type="search"
                                 placeholder="Search anything..." aria-label="Search" style="padding-top: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"

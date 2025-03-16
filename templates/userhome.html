@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>doReview</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -158,6 +159,7 @@
         .cust-top-bar{
             background-color: #f7d9e2;
             width:100%;
+            
         }
         .order-header{
             display:grid;
@@ -186,9 +188,21 @@
         .order-row-item > tr >td {
             padding:0px;
         }
+        
+        .rating .heart {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ccc;
+        }
+        .rating .heart.selected {
+            color: red;
+        }
+                    
     </style>
+    
 </head>
 <body>
+
     <div class="dashboard">
         <div class="content">
             <section class="cust-top-bar">
@@ -268,7 +282,7 @@
                                         {% if singleorder['order_status'] == "Pending" %}
                                         <td style="padding:0px;">Can't edit while pening</td>
                                         {% else %}
-                                        <td style="padding:0px;"><button class="btn">Rate This</button></td>
+                                        <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
                                         {% endif %}
                                     </tr>
                                     {% endfor %}
@@ -326,10 +340,66 @@
 
         </div>
     </div>
+    <script>
+        $(".review-modal").click(function () {
+        console.log("review modal click event ")
+        console.log("productName: ",productName)
+        $(".modal-header #reviewModalLabel").html(productName);
+        $(".modal-header #reviewModalImage").val('src', "/static/images/" )
+    });
+    </script>
+  <!-- Modal -->
+  <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" >Rate the Product</h5>
+          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <h5 id="reviewModalLabel"></h5>
+            <img id="reviewModalImage" style="width: 50px;">
+            <form name="customer-review" onsubmit="submitReview(event, target-data)">
+                <div class="form-group">
+                    <label>Your Rating</label>
+                    <div id="rating" class="rating">
+                        <span class="heart" data-value="1" onclick="heartSelector(1)">&#x2661;</span>
+                        <span class="heart" data-value="2" onclick="heartSelector(2)">&#x2661;</span>
+                        <span class="heart" data-value="3" onclick="heartSelector(3)">&#x2661;</span>
+                        <span class="heart" data-value="4" onclick="heartSelector(4)">&#x2661;</span>
+                        <span class="heart" data-value="5" onclick="heartSelector(5)">&#x2661;</span>
+                    </div>
+                    <input type="hidden" id="rating-value" required>
+                    
+                    <script>
+                        
+                    </script>
+                </div>
+                <div class="form-group">
+                    <label >Your Comments</label>
+                    <textarea class="form-control" id="comments" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+            </form>
+        </div>
+        <div class="modal-footer">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 
 
 <script>
+
+    
+
+
     // Function to toggle the review section for a specific asset
     function toggleReviewSection(assetId) {
         const reviewSection = document.getElementById(`review-section-${assetId}`);
@@ -357,10 +427,7 @@
         toggleReviewSection(assetId); // Hide the review section after submission
     }
 
-    function testFunction() {
-        console.log("Test button clicked!");
-        alert("Test button clicked!");
-    }
+
     
 </script>
 
@@ -431,7 +498,9 @@
         }
     });
 </script>
-
+<script>
+    
+</script>
 
 </body>
 </html>
