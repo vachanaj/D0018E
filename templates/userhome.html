@@ -287,9 +287,13 @@
                                         {% endif %}
 
                                         <td style="padding:0px;">
-                                            <button class="btn response-modal" data-toggle="modal" data-target="#responseModal" data-asset-id="{{ item['assets_id'] }}" data-order-id="{{ singleorder['order_id'] }}">
-                                                View Responses
-                                            </button>
+                                            {% for review in reviews %}
+                                                {% if review['review_order_item_id'] == singleorder['order_id'] %}
+                                                <button class="btn response-modal" onclick="updateReviewModal(`{{ review['review_order_item_id'] }}`, `{{ review['review_asset_comments'] }}`, `{{ review['replies'][0].review_asset_comments }}`)" data-toggle="modal" data-target="#responseModal" data-asset-id="{{ item['assets_id'] }}" data-order-id="{{ singleorder['order_id'] }}">
+                                                    View Responses
+                                                </button>
+                                                {% endif %}
+                                            {% endfor %}
                                         </td>
 
                                     </tr>
@@ -308,43 +312,7 @@
                 {% endfor %}
             </section>
 
-            
-            <!-- View reviews -->
-            <section id="comments">
-                <div class="container">
-                    <h1>Your Reviews and Responses</h1>
-                    {% if reviews %}
-                        {% for review in reviews %}
-                            <div class="review">
-                                <p><strong>Your Review:</strong> {{ review.review_asset_comments }}</p>
-                                <p><strong>Rating:</strong> {{ review.review_asset_rating }}</p>
-                                <p><strong>Date:</strong> {{ review.created_at }}</p>
 
-                                <!-- Display Admin Replies -->
-                                {% if review.replies %}
-                                    <h3>Admin Responses:</h3>
-                                    {% for reply in review.replies %}
-                                        <div class="reply">
-                                            <p><strong>Admin:</strong> {{ reply.review_asset_comments }}</p>
-                                            <p><strong>Date:</strong> {{ reply.created_at }}</p>
-
-                                            <!-- Reply Form for User (only for the latest admin reply) -->
-                                            {% if loop.last %}  <!-- Only show the form for the latest reply -->
-                                                <div class="reply-form">
-                                                    <input type="text" id="response-{{ reply.review_id }}" placeholder="Write your response here">
-                                                    <button onclick="saveResponse('{{ reply.review_id }}')">Reply</button>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p>No reviews found.</p>
-                    {% endif %}
-                </div>
-            </section>
 
         </div>
     </div>
@@ -415,36 +383,31 @@
                 </button>
             </div>
             <div class="modal-body">
-                {% if reviews %}
-                    {% for review in reviews %}
+                
                         <div class="review">
-                            <p><strong>Your Review:</strong> {{ review.review_asset_comments }}</p>
-                            <p><strong>Rating:</strong> {{ review.review_asset_rating }}</p>
-                            <p><strong>Date:</strong> {{ review.created_at }}</p>
+                            <p><strong>Your Review:</strong><input id="cust_review_comment"></input> </p>
+                            <p><strong>Rating:</strong> <input id="cust_review_rating"></input></p>
+                            <p><strong>Date:</strong></p>
 
                             <!-- Display Admin Replies -->
-                            {% if review.replies %}
+                           
                                 <h3>Admin Responses:</h3>
-                                {% for reply in review.replies %}
+                                
                                     <div class="reply">
-                                        <p><strong>Admin:</strong> {{ reply.review_asset_comments }}</p>
-                                        <p><strong>Date:</strong> {{ reply.created_at }}</p>
+                                        <p><strong>Admin:</strong><input id="admin_response"></input></p>
+                                        <p><strong>Date:</strong> </p>
 
                                         <!-- Reply Form for User (only for the latest admin reply) -->
-                                        {% if loop.last %}  <!-- Only show the form for the latest reply -->
+                                        <!-- Only show the form for the latest reply -->
                                             <div class="reply-form">
-                                                <input type="text" id="response-{{ reply.review_id }}" placeholder="Write your response here">
-                                                <button class="btn btn-primary" onclick="saveResponse('{{ reply.review_id }}')">Reply</button>
                                             </div>
-                                        {% endif %}
+                                        
                                     </div>
-                                {% endfor %}
-                            {% endif %}
+                                
                         </div>
-                    {% endfor %}
-                {% else %}
+                    
                     <p>No reviews found.</p>
-                {% endif %}
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -32,10 +32,13 @@ def get_db_connection():
 def user_home():
     if 'username' in session:
         user_id = session.get('username')  # Get the logged-in user's ID
+        print("user_id",user_id)
+        login_id = login.get_login_id(session['username'])
+        print("login_id",login_id)
         asset_id = 1  # Hardcode the asset ID for now (replace with dynamic value later)
 
         # Fetch reviews for the logged-in user and the specific item
-        reviews_data = reviews.get_reviews_for_user_and_item(user_id, asset_id)
+        reviews_data = reviews.get_reviews_for_user_and_item(login_id, asset_id)
         print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
 
         # Pass reviews to the template
@@ -349,19 +352,19 @@ def user_info():
                     'order_timestamp': orderid[4],
                     'single_order_items': singleOrderitems
                 })
-            #print("cust_orders: ", cust_orders)
+            
             username = session['username']  # Get the logged-in user's username
-            asset_id = 2  # Hardcode the asset ID for now (replace with dynamic value later)
 
             # Fetch the login_id for the logged-in user
             review_login_id = reviews.get_login_id_by_username(username)  # Use reviews.get_login_id_by_username
+            print("is this right?", review_login_id)
             #if not login_id:
                 #return jsonify({'success': False, 'message': 'User not found'})
 
             #print(f"Fetching reviews for login_id: {review_login_id}, asset_id: {asset_id}")  # Debugging
 
             # Fetch reviews for the logged-in user and the specific item
-            reviews_data = reviews.get_reviews_for_user_and_item(review_login_id, asset_id)
+            reviews_data = reviews.get_reviews_for_user(review_login_id)
             #print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
 
             # Pass reviews to the template

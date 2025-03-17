@@ -232,35 +232,16 @@
 
 
         // Function to handle review submission (frontend only for now)
-    function submitReview() {
-        document.querySelector('.close').click();
-        //console.log("submit review called")
-        const rating = document.getElementById('rating-value').value;
-        //console.log("rating", rating)
-        const comments = document.getElementById('review-comments').value;
-        //console.log("comments", comments)
-        const asset_id = document.getElementById('asset_id').value;
-        console.log("asset_id", asset_id)
-        if (!rating || !comments) {
-            alert("Please fill out all fields before submitting.");
-            return;
-        }
-        else {
-            alert("Thank you! Review submitted..");
-            fetch('/cust_product_review', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({"rating":rating, "comments":comments, "asset_id":asset_id})
-            })
-            .then(response => response.json())
-            .then(data => {
-                //alert(data.message); // Show success message
-                userInfo();
-                
-            })
-            .catch(error => console.error("Error:", error));
-
-        }
+    function updateReviewModal(order_id, comments, response) {
+        //document.querySelector('.close').click();
+        console.log("order_id", order_id)
+        console.log("comments", comments)
+        console.log("reply", response)
+        document.getElementById("cust_review_comment").value = comments;
+        document.getElementById("cust_review_rating").value = 2;
+        document.getElementById("admin_response").value = response;
+        
+            
         
     }
         
