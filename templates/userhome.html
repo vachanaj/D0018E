@@ -289,9 +289,16 @@
                                         <td style="padding:0px;">
                                             {% for review in reviews %}
                                                 {% if review['review_order_item_id'] == singleorder['order_id'] %}
-                                                <button class="btn response-modal" onclick="updateReviewModal(`{{ review['review_order_item_id'] }}`, `{{ review['review_asset_comments'] }}`, `{{ review['replies'][0].review_asset_comments }}`)" data-toggle="modal" data-target="#responseModal" data-asset-id="{{ item['assets_id'] }}" data-order-id="{{ singleorder['order_id'] }}">
-                                                    View Responses
-                                                </button>
+                                                    <button class="btn response-modal" 
+                                                            onclick="updateReviewModal(`{{ review['review_order_item_id'] }}`, 
+                                                                                       `{{ review['review_asset_comments'] }}`, 
+                                                                                       `{{ review['replies'][0].review_asset_comments if review['replies'] else '' }}`)" 
+                                                            data-toggle="modal" 
+                                                            data-target="#responseModal" 
+                                                            data-asset-id="{{ item['assets_id'] }}" 
+                                                            data-order-id="{{ singleorder['order_id'] }}">
+                                                        View Responses
+                                                    </button>
                                                 {% endif %}
                                             {% endfor %}
                                         </td>
