@@ -372,7 +372,7 @@
                     {% endif %}
                 </div>
                 <!-- shoppingcart Button -->
-                {% if session['username'] is defined %}
+                {% if session['username'] is defined and session['login_role'] != 'admin' %}
                     <button class="cart-button" data-container="body" data-toggle="popover" data-placement="bottom" data-content="View cart"  >
                         <div onclick="openNav()" class="btn btn-light">
                             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="pink" class="bi bi-bag-heart-fill" viewBox="0 0 16 16">
