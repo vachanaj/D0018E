@@ -269,6 +269,7 @@
                                     <th>Price</th>
                                     <th>Total</th>
                                     <th>Rate & Review</th>
+                                    <th>Review and response</th>
                                 </tr>
                                 {% if cust_orders is defined %}
                                     {% for item in singleorder['single_order_items'] %}
@@ -284,6 +285,17 @@
                                         {% else %}
                                         <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`, `{{singleorder['order_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
                                         {% endif %}
+
+                                        <td style="padding:0px;">
+                                            {% for review in reviews %}
+                                                {% if review['review_order_item_id'] == singleorder['order_id'] %}
+                                                <button class="btn response-modal" onclick="updateReviewModal(`{{ review['review_order_item_id'] }}`, `{{ review['review_asset_comments'] }}`, `{{ review['replies'][0].review_asset_comments }}`)" data-toggle="modal" data-target="#responseModal" data-asset-id="{{ item['assets_id'] }}" data-order-id="{{ singleorder['order_id'] }}">
+                                                    View Responses
+                                                </button>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+
                                     </tr>
                                     {% endfor %}
                                 {% else %}
@@ -300,43 +312,7 @@
                 {% endfor %}
             </section>
 
-            
-            <!-- View reviews -->
-            <section id="comments">
-                <div class="container">
-                    <h1>Your Reviews and Responses</h1>
-                    {% if reviews %}
-                        {% for review in reviews %}
-                            <div class="review">
-                                <p><strong>Your Review:</strong> {{ review.review_asset_comments }}</p>
-                                <p><strong>Rating:</strong> {{ review.review_asset_rating }}</p>
-                                <p><strong>Date:</strong> {{ review.created_at }}</p>
 
-                                <!-- Display Admin Replies -->
-                                {% if review.replies %}
-                                    <h3>Admin Responses:</h3>
-                                    {% for reply in review.replies %}
-                                        <div class="reply">
-                                            <p><strong>Admin:</strong> {{ reply.review_asset_comments }}</p>
-                                            <p><strong>Date:</strong> {{ reply.created_at }}</p>
-
-                                            <!-- Reply Form for User (only for the latest admin reply) -->
-                                            {% if loop.last %}  <!-- Only show the form for the latest reply -->
-                                                <div class="reply-form">
-                                                    <input type="text" id="response-{{ reply.review_id }}" placeholder="Write your response here">
-                                                    <button onclick="saveResponse('{{ reply.review_id }}')">Reply</button>
-                                                </div>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p>No reviews found.</p>
-                    {% endif %}
-                </div>
-            </section>
 
         </div>
     </div>
@@ -348,7 +324,9 @@
         $(".modal-header #reviewModalImage").val('src', "/static/images/" )
     });
     </script>
-  <!-- Modal -->
+
+
+<!-- Modal -->
   <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -394,14 +372,52 @@
     </div>
   </div>
 
+<!-- Response Modal -->
+<div class="modal fade" id="responseModal" tabindex="-1" role="dialog" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Your Reviews and Responses</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                
+                        <div class="review">
+                            <p><strong>Your Review:</strong><input id="cust_review_comment"></input> </p>
+                            <p><strong>Rating:</strong> <input id="cust_review_rating"></input></p>
+                            <p><strong>Date:</strong></p>
 
+                            <!-- Display Admin Replies -->
+                           
+                                <h3>Admin Responses:</h3>
+                                
+                                    <div class="reply">
+                                        <p><strong>Admin:</strong><input id="admin_response"></input></p>
+                                        <p><strong>Date:</strong> </p>
+
+                                        <!-- Reply Form for User (only for the latest admin reply) -->
+                                        <!-- Only show the form for the latest reply -->
+                                            <div class="reply-form">
+                                            </div>
+                                        
+                                    </div>
+                                
+                        </div>
+                    
+                    <p>No reviews found.</p>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 <script>
-
-    
-
-
     // Function to toggle the review section for a specific asset
     function toggleReviewSection(assetId) {
         const reviewSection = document.getElementById(`review-section-${assetId}`);
@@ -416,54 +432,6 @@
 
 <!-- FIRST SCRIPT (loads functions) -->
 <script>
-    function saveResponse(reviewId) {
-        console.log("saveResponse called with reviewId:", reviewId);
-        const responseInput = document.getElementById(`response-${reviewId}`);
-
-        if (!responseInput) {
-            alert("Response input field not found.");
-            return;
-        }
-
-        const response = responseInput.value;
-        console.log("Response:", response);
-
-        if (!response) {
-            alert("Please write a response before submitting.");
-            return;
-        }
-
-        fetch(`/customer/reply/${reviewId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                response: response,
-                author_role: 'customer'
-            }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Failed to save response');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                alert('Response saved successfully');
-                location.reload();
-            } else {
-                throw new Error(data.message || 'Failed to save response');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(`Error: ${error.message}`);
-        });
-    }
 
     // Attach function to global scope
     window.saveResponse = saveResponse;

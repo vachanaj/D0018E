@@ -240,7 +240,7 @@
                                         <!-- Admin Response Input -->
                                         <td><input type="text" id="response-{{ review.review_id }}" placeholder="Write your response here"></td>
                                         <!-- Send Response Button -->
-                                        <td><button onclick="saveResponse('{{ review.review_id }}')">Respond</button></td>
+                                        <td><button onclick="saveResponseAdmin('{{ review.review_id }}')">Respond</button></td>
                                     </tr>
                                 {% endif %}
                             {% endfor %}
@@ -306,6 +306,9 @@
                     <label for="admin-lastname">Last Name:</label>
                     <input type="text" id="last" name="last" required>
 
+                    <label for="admin-email">Email:</label>
+                    <input type="text" id="email" name="email" required>
+
                     <button type="submit" class="btn">Add Admin</button>
                 </form>
             </section>
@@ -316,38 +319,6 @@
 <script>
 
 
-function saveResponse(reviewId) {
-    const response = document.getElementById(`response-${reviewId}`).value;
-
-    if (!response) {
-        alert("Please write a response before submitting.");
-        return;
-    }
-
-    fetch(`/admin/reply/${reviewId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            response: response,
-            author_role: 'admin'  // Explicitly set the role to 'admin'
-        }),
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Response saved successfully');
-            location.reload();  // Reload the page to reflect changes
-        } else {
-            alert('Failed to save response: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while saving the response.');
-    });
-}
                 
 // Add a new row
 function addRow() {
