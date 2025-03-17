@@ -46,3 +46,29 @@ def get_order_ids(user_id):
             return order_ids
         except:
             return None
+        
+def get_all_orders():
+    if db.is_connected():
+        cursor = db.cursor()
+        query = "SELECT * FROM orders"
+        cursor.execute(query)
+        orders = cursor.fetchall()
+        cursor.close()
+        return orders
+    
+    else:
+        return False
+    
+def change_order_status(order_id):
+    if db.is_connected():
+        try:
+            cursor = db.cursor()
+            query = "UPDATE orders SET order_status = 'Delivered' WHERE order_id = %s"
+            cursor.execute(query, (order_id,))
+            db.commit()
+            cursor.close()
+            return True
+        except:
+            return False
+    else:
+        return False

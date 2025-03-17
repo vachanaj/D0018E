@@ -59,3 +59,14 @@ def decrease_quantity(asset_id, quantity):
     else:
         return False
     
+
+def update_asset_rating(asset_id, asset_rating):
+    if db.is_connected():
+        cursor = db.cursor()
+        query = "UPDATE assets SET assets_rating = %s WHERE assets_id = %s"
+        cursor.execute(query, (asset_rating, asset_id))
+        db.commit()
+        cursor.close()
+        return True
+    else:
+        return False

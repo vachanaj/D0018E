@@ -280,7 +280,7 @@
                                         <td style="padding:0px;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
                                         <td style="padding:0px;"><h5>$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</h5></td>
                                         {% if singleorder['order_status'] == "Pending" %}
-                                        <td style="padding:0px;">Can't edit while pening</td>
+                                        <td style="padding:0px;">You can review this product once your order has been delivered.</td>
                                         {% else %}
                                         <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
                                         {% endif %}

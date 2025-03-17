@@ -79,7 +79,51 @@
             margin-bottom: 10px;
             box-sizing: border-box;
         }
+
+        .order {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        .order h3 {
+            margin-top: 0;
+        }
+        .order-items {
+            margin: 0px;
+        }
+        .order-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-left: 2px solid #007bff;
+            background-color: #e9f5ff;
+        }
+        
+        .order-header{
+            display:grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            background-color: #f7d9e2;
+        }
+        
+        .order-details{
+            
+            border: 1px solid lightgrey;
+            padding:20px;
+            
+        }
+        .div-20{
+            height:20px;
+        }
+        .order-row-item .order-row-header{
+            display: grid;
+            grid-template-columns: 15% 30% 5% 10% 15% 25%;
+        }
+        .order-row-item > tr >td {
+            padding:0px;
+        }
+
     </style>
+
 </head>
 <body>
     <div class="dashboard">
@@ -89,29 +133,68 @@
             <div><h1>Admin Dashboard </h1> <div onclick="logout()">
                 <button class="btn btn-warning" style="background-color: #f7d9e2;">Logout</button>
             </div></div>
-
+            
             
             <!-- View Orders Section -->
             <section id="view-orders">
                 <h2>Orders</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                            <td><button class="btn">Deliver</button></td>
-                            <td><button class="btn">Expand</button></td>
-                        </tr>
-                    </thead>
-                    <tbody>
+                
+                    {% for singleorder in cust_orders %}
+                    
+                    <div class="order-details">
+                        <div class="order-header">
+                            <div class="order-id">
+                                <span>Order Id:</span><span style="color:white;background-color:black;"> {{ singleorder['order_id'] }} </span>
+                            </div>
+                            <div class="order-timestamp">
+                                <span>Order Timestamp:</span><span style="color:white;background-color:black;"> {{ singleorder['order_timestamp'] }} </span>
+                            </div>
+                            <div class="order-status">
+                                {% if singleorder['order_status'] == "Pending" %}
+                                    <span>Order Status:</span><span style="color:white;background-color:black;"><button class="btn review-modal" onclick="changeOrderStatus(`{{ singleorder['order_id'] }}`)"> {{ singleorder['order_status'] }} </button> </span> 
+                                {% else %}
+                                    <span>Order Status:</span><span style="color:white;background-color:black;"> {{ singleorder['order_status'] }} </span>
+                                {% endif %}
+                            </div>
 
-                    </tbody>
-                </table>
+                            <div class="order-total-price">
+                                <span>Total order price: </span> <span style="color:white;background-color:black;">$ {{ singleorder['order_total_price'] }}</span>
+                            </div>
+                        </div>
+                        <div class="order-items">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr class="order-row-header">
+                                        <th>Image</th>
+                                        <th>Description</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                    {% if cust_orders is defined %}
+                                        {% for item in singleorder['single_order_items'] %}
+                                        
+                                        <tr class="order-row-item">
+                                            <td style="padding:0px;"><img src="/static/images/{{ item['assets_img_name'] }}" style="width: 50px;"></td>
+                                            <td style="padding:0px;"><h5>{{ item['assets_desc'] }}</h5></td>
+                                            <td style="padding:0px;">{{ item['order_items_assets_quantity'] }}</td>
+                                            <td style="padding:0px;"><h5 style="padding:0px;">$ {{ item['assets_price'] }}</h5></td>
+                                            <td style="padding:0px;"><h5>$ {{ item['assets_price'] * item['order_items_assets_quantity'] }}</h5></td>
+                                            
+                                        </tr>
+                                        {% endfor %}
+                                    
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
+                    <div class="div-20"> </div>         
+                    {% endfor %}
             </section>
 
-            <!-- Order details, Expanded section -->
+            <!-- Order details, Expanded section 
             <section id = "order-details">
                 <h2>Order details</h2>
                 <table id="detailsTable">
@@ -126,7 +209,7 @@
                     </thead>
                 </table>
 
-            </section>
+            </section>-->
 
 
             <!-- View reviews -->

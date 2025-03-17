@@ -205,6 +205,31 @@ def get_review_by_id(review_id):
 #        print(f"Error inserting review: {e}")
 #        return False
     
+def get_review_asset_rating(review_asset_id):
+    if db.is_connected():
+        cursor = db.cursor()
+        query = """
+            SELECT review_asset_id, SUM(review_asset_rating) as total_rating, COUNT(*) as rating_count
+            FROM reviews
+            WHERE review_asset_id = %s
+            GROUP BY review_asset_id
+        """
+        cursor.execute(query, (review_asset_id,))
+        result = cursor.fetchall()
+        print(result)
+        db.commit()
+        cursor.close()
+        
+        total_rating = result[0][1]
+        rating_count = result[0][2]
+        average_rating = round(total_rating / rating_count)
+            
+        return average_rating
+    else:
+        return False
+
+
+
 def delete_review(review_id):
     if db.is_connected():
         cursor = db.cursor()

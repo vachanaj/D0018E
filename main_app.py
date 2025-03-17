@@ -129,8 +129,24 @@ def admin_page():
                 reviews_data = reviews.get_all_reviews()  # Fetch all reviews
                 print("Fetched reviews:", reviews_data)  # Debugging: Print fetched reviews
 
+                all_orders = orders.get_all_orders()
+
+                
+                cust_orders = []
+                for order in all_orders:
+                    singleOrderitems = order_items.get_order_items(order[0])
+
+                    cust_orders.append({
+                        'order_id': order[0],
+                        'order_total_price': order[2],
+                        'order_status': order[3],
+                        'order_timestamp': order[4],
+                        'single_order_items': singleOrderitems
+                    })
+
                 # Pass both assets and reviews to the template
-                return render_template('admin.html', assets=assets, reviews=reviews_data)
+                return render_template('admin.html', assets=assets, cust_orders=cust_orders, reviews=reviews_data)
+            
             else:
                 print("Database connection failed.")  # Debugging
                 return "Database connection failed. Please check your connection.", 500
@@ -138,6 +154,22 @@ def admin_page():
             print(f"Error fetching data: {e}")  # Debugging
             return "An error occurred while fetching data.", 500
     return redirect(url_for('login'))  # Redirect to login if not an admin
+
+@app.route('/admin/change-order-status/<int:order_id>', methods=['POST'])
+def change_order_status(order_id):
+    print("main app order status changing")
+    if 'username' in session and session['role'] == 'admin':
+        try:
+            orders.change_order_status(order_id)
+            print("order status changed!")
+            return jsonify({"success": True, "message": "Order status changed!"}), 200
+
+        except Exception as e:
+            print(f"Error updating order status: {e}")  # Debugging: Print the error
+            return jsonify({"success": False, "message": "An error occurred while updating the order status"}), 500
+    return jsonify({"success": False, "message": "Unauthorized"}), 401
+
+
 
 @app.route('/admin/add-asset', methods=['POST'])
 def add_asset():
@@ -365,27 +397,29 @@ def cust_product_review():
     print("comment", comments)
     
     reviews.add_review(user_id, asset_id, comments, rating)
+    asset_average_rating = reviews.get_review_asset_rating(asset_id)
+    product_gallery.update_asset_rating(asset_id, asset_average_rating)
     return jsonify({"success": True, "message": "Review added successfully"})
 
 @app.route('/')
 def index():
     assets = product_gallery.get_all_assets()
     print("assets:", assets)
-    reviews_by_asset = reviews.get_all_reviews()  # Now it's grouped by asset_id
-    print("reviews_by_asset:", reviews_by_asset)
+    #reviews_by_asset = reviews.get_all_reviews()  # Now it's grouped by asset_id
+    #print("reviews_by_asset:", reviews_by_asset)
     if 'username' in session:
         print("session:", session['username'])
         login_id = login.get_login_id(session['username'])
         cart_id = cart.get_cart_id(login_id)
         print(cart_id)
         if cart_id is None:
-            return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset)
+            return render_template('index.html', assets=assets)
         else:
             cartItems = cart_items.get_cart_items(cart_id)
             print("cart items in default route: ", cartItems)
-            return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset, cart_items=cartItems)
+            return render_template('index.html', assets=assets, cart_items=cartItems)
         
-    return render_template('index.html', assets=assets, reviews_by_asset=reviews_by_asset)
+    return render_template('index.html', assets=assets)
 
 
 @app.route('/db-test')
