@@ -391,12 +391,14 @@ def cust_product_review():
     asset_id = data['asset_id']
     rating = data['rating']
     comments = data['comments']
+    order_id = data['order_id']
     print("user_id", user_id)
     print("asset_id", asset_id)
     print("rating", rating)
     print("comment", comments)
-    
-    reviews.add_review(user_id, asset_id, comments, rating)
+    print("order_id", order_id)
+
+    reviews.add_review(user_id, asset_id, comments, rating, order_id)
     asset_average_rating = reviews.get_review_asset_rating(asset_id)
     product_gallery.update_asset_rating(asset_id, asset_average_rating)
     return jsonify({"success": True, "message": "Review added successfully"})

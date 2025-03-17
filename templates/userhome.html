@@ -282,7 +282,7 @@
                                         {% if singleorder['order_status'] == "Pending" %}
                                         <td style="padding:0px;">You can review this product once your order has been delivered.</td>
                                         {% else %}
-                                        <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
+                                        <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`, `{{singleorder['order_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
                                         {% endif %}
                                     </tr>
                                     {% endfor %}
@@ -373,9 +373,9 @@
                         <span class="heart" data-value="4" onclick="heartSelector(4)">&#x2661;</span>
                         <span class="heart" data-value="5" onclick="heartSelector(5)">&#x2661;</span>
                     </div>
-                    <input type="hidden" id="rating-value" required>
-                    <input type="hidden" id="asset_id" required>
-                    
+                    <input type="hidden" id="rating-value" >
+                    <input type="hidden" id="asset_id" >
+                    <input type="hidden" id="order_id">
                     <script>
                         
                     </script>

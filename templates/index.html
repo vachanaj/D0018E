@@ -119,11 +119,12 @@
             .catch(error => console.error("Error:", error));
         }
         
-        function reviewProduct(productName, productImage, productId) {
+        function reviewProduct(productName, productImage, productId, orderId) {
         //console.log("productName: ",productName)
         
         productImageFileName = '/static/images/'+productImage;
         document.getElementById("asset_id").value = productId;
+        document.getElementById("order_id").value = orderId;
         $(".modal-body #reviewModalLabel").html(productName);
         //console.log("productImageFileName: ",productImageFileName)
         $(".modal-body #reviewModalImage").attr('src', productImageFileName)
@@ -149,6 +150,7 @@
         const comments = document.getElementById('review-comments').value;
         //console.log("comments", comments)
         const asset_id = document.getElementById('asset_id').value;
+        const order_id = document.getElementById('order_id').value;
         console.log("asset_id", asset_id)
         if (!rating || !comments) {
             alert("Please fill out all fields before submitting.");
@@ -159,7 +161,7 @@
             fetch('/cust_product_review', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({"rating":rating, "comments":comments, "asset_id":asset_id})
+                body: JSON.stringify({"rating":rating, "comments":comments, "asset_id":asset_id, "order_id": order_id})
             })
             .then(response => response.json())
             .then(data => {

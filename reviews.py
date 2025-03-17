@@ -2,7 +2,7 @@ import db_connector
 
 db = db_connector.db
 
-def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=None, author_role='customer'):
+def add_review(user_id, asset_id, review_text, order_id, rating=None, parent_review_id=None, author_role='customer'):
     if not db.is_connected():
         return False  # Database connection failed
 
@@ -24,10 +24,10 @@ def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=Non
         cursor = db.cursor()
         query = """
         INSERT INTO reviews 
-        (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at) 
-        VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at, review_order_item_id) 
+        VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s)
         """
-        cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role))
+        cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role, order_id))
         db.commit()
         cursor.close()
         return True
@@ -219,7 +219,7 @@ def get_review_asset_rating(review_asset_id):
         print(result)
         db.commit()
         cursor.close()
-        
+
         total_rating = result[0][1]
         rating_count = result[0][2]
         average_rating = round(total_rating / rating_count)
