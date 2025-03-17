@@ -431,9 +431,9 @@ def register_admin_route():
     # Process the login data
     result = login.register_admin(first, last, username, password, email)  # Call the imported function directly
     if result:
-      return jsonify({"success": True, "message": "Admin registered successfully"})
+      return redirect('/')
     else:
-      return jsonify({"success": False, "message": "Failed to register admin"})
+      return redirect('/error-page')
 
 @app.route('/update_cart', methods=['GET', 'POST'])
 def update_cart():
