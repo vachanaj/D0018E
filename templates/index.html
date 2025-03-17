@@ -140,6 +140,97 @@
         })
     }
 
+    function saveResponseAdmin(reviewId) {
+        const response = document.getElementById(`response-${reviewId}`).value;
+
+        if (!response) {
+            alert("Please write a response before submitting.");
+            return;
+        }
+
+        console.log(`Saving response for review ID: ${reviewId}`);  // Debugging
+        console.log(`Response text: ${response}`);  // Debugging
+
+        fetch(`/admin/reply/${reviewId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                response: response,
+                author_role: 'admin'  // Explicitly set the role to 'admin'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Response saved successfully');
+                location.reload();  // Reload the page to reflect changes
+            } else {
+                alert('Failed to save response: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while saving the response.');
+        });
+    }
+
+    function saveResponse(reviewId) {
+        console.log("saveResponse called with reviewId:", reviewId);
+        const responseInput = document.getElementById(`response-${reviewId}`);
+
+        if (!responseInput) {
+            alert("Response input field not found.");
+            return;
+        }
+
+        const response = responseInput.value;
+        console.log("Response:", response);
+
+        if (!response) {
+            alert("Please write a response before submitting.");
+            return;
+        }
+
+        fetch(`/customer/reply/${reviewId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                response: response,
+                author_role: 'customer'
+            }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Failed to save response');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Response saved successfully');
+                location.reload();
+            } else {
+                throw new Error(data.message || 'Failed to save response');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error: ${error.message}`);
+        });
+    }
+
+
         // Function to handle review submission (frontend only for now)
     function submitReview() {
         document.querySelector('.close').click();

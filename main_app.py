@@ -78,12 +78,25 @@ def customer_reply(review_id):
 
 @app.route('/admin/reply/<int:review_id>', methods=['POST'])
 def admin_reply(review_id):
+    # Check if the user is logged in and is an admin
+    if 'username' not in session or session.get('role') != 'admin':
+        print("Unauthorized access attempt")  # Debugging
+        return jsonify({'success': False, 'message': 'Unauthorized access'})
+
+    # Fetch the admin_id from the session
+    admin_id = login.get_login_id(session['username'])
+    print(admin_id)
+    admin_id = admin_id[0]
+    if not admin_id:
+        print("Admin not found")  # Debugging
+        return jsonify({'success': False, 'message': 'Admin not found'})
+
+    # Parse the request data
     data = request.get_json()
     print("Received data:", data)  # Debugging
 
     response_text = data.get('response')
     author_role = data.get('author_role', 'admin')  # Use 'admin' as the default role
-    admin_id = 1  # Hardcode the admin ID or fetch it from a secure source
 
     print("Response text:", response_text)  # Debugging
     print("Author role:", author_role)  # Debugging
@@ -99,17 +112,24 @@ def admin_reply(review_id):
         return jsonify({'success': False, 'message': 'Original review not found'})
 
     # Add the admin reply
-    if reviews.add_review(
-        user_id=admin_id,
-        asset_id=original_review['review_asset_id'],
-        review_text=response_text,
-        parent_review_id=review_id,  # Link to the original review
-        author_role=author_role  # Use the author_role from the request
-    ):
-        return jsonify({'success': True})
-    else:
-        return jsonify({'success': False, 'message': 'Failed to save response'})
-
+    try:
+        print("admin review insert")
+        if reviews.add_review(
+            admin_id,
+            original_review['review_asset_id'],
+            response_text,
+            None,
+            review_id,  # Link to the original review
+            author_role  # Use the author_role from the request
+        ):
+            print("Response saved successfully")  # Debugging
+            return jsonify({'success': True})
+        else:
+            print("Failed to save response")  # Debugging
+            return jsonify({'success': False, 'message': 'Failed to save response'})
+    except Exception as e:
+        print(f"Error saving response: {e}")  # Debugging
+        return jsonify({'success': False, 'message': 'An error occurred while saving the response'})
 
 # Admin Dashboard Route
 @app.route('/admin/dashboard')
@@ -348,8 +368,10 @@ def user_info():
             return render_template('userhome.html', cust_orders=cust_orders, reviews=reviews_data)
     else:
         # Redirect to the login page if the user is not logged in
-        return redirect(url_for('login_user'))       
+        return redirect(url_for('login_user'))    
 
+
+#Customer makes review of product
 @app.route('/cust_product_review', methods=['GET', 'POST'])
 def cust_product_review():
     print("customer product review called")

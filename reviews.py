@@ -14,12 +14,6 @@ def add_review(user_id, asset_id, review_text, rating=None, parent_review_id=Non
     # Ensure rating is only set for customer reviews (not replies)
     if parent_review_id is not None:
         rating = None  # Replies (admin or customer) should not have a rating
-
-    # Ensure rating is valid (1 to 5) if provided
-    if rating is None:
-        print("Error: Rating must be between 1 and 5.")
-        return False
-
     try:
         cursor = db.cursor()
         query = """
