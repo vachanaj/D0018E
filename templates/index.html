@@ -265,13 +265,13 @@
 
 
         // Function to handle review submission (frontend only for now)
-    function updateReviewModal(order_id, comments, response) {
+    function updateReviewModal(asset_rating, comments, response) {
         //document.querySelector('.close').click();
-        console.log("order_id", order_id)
+        console.log("order_id", asset_rating)
         console.log("comments", comments)
         console.log("reply", response)
         document.getElementById("cust_review_comment").value = comments;
-        document.getElementById("cust_review_rating").value = 2;
+        document.getElementById("cust_review_rating").value = asset_rating;
         document.getElementById("admin_response").value = response;
         
             

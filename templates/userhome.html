@@ -290,7 +290,7 @@
                                             {% for review in reviews %}
                                                 {% if review['review_order_item_id'] == singleorder['order_id'] %}
                                                     <button class="btn response-modal" 
-                                                            onclick="updateReviewModal(`{{ review['review_order_item_id'] }}`, 
+                                                            onclick="updateReviewModal(`{{ review['review_asset_rating'] }}`, 
                                                                                        `{{ review['review_asset_comments'] }}`, 
                                                                                        `{{ review['replies'][0].review_asset_comments if review['replies'] else '' }}`)" 
                                                             data-toggle="modal" 
