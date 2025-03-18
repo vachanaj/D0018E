@@ -283,7 +283,21 @@
                                         {% if singleorder['order_status'] == "Pending" %}
                                         <td style="padding:0px;">You can review this product once your order has been delivered.</td>
                                         {% else %}
-                                        <td style="padding:0px;"><button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`, `{{singleorder['order_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">Rate This</button></td>
+                                        <td style="padding:0px;">
+                                        {% set ns = namespace(reviewed=0) %}
+                                            {% for review in reviews %}
+                                                {% if review['review_order_item_id'] == singleorder['order_id'] %}
+                                                {% set ns.reviewed=1 %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% if ns.reviewed == 0 %}
+                                            <button class="btn review-modal" onclick="reviewProduct(`{{ item['assets_desc']}}`, `{{item['assets_img_name'] }}`, `{{item['assets_id'] }}`, `{{singleorder['order_id'] }}`)" data-toggle="modal" data-target="#reviewModal" data-id="{{item['assets_desc'] }}">
+                                                Rate This
+                                            </button>
+                                            {% else %}
+                                                You've already reviewed this
+                                            {% endif %}
+                                        </td>
                                         {% endif %}
 
                                         <td style="padding:0px;">
