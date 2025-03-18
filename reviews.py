@@ -2,7 +2,7 @@ import db_connector
 
 db = db_connector.db
 
-def add_review(user_id, asset_id, review_text, order_id, rating=None, parent_review_id=None, author_role='customer'):
+def add_review(user_id, asset_id, review_text, order_id=None, rating=None, parent_review_id=None, author_role='customer'):
     if not db.is_connected():
         return False  # Database connection failed
 
@@ -14,6 +14,27 @@ def add_review(user_id, asset_id, review_text, order_id, rating=None, parent_rev
     # Ensure rating is only set for customer reviews (not replies)
     if parent_review_id is not None:
         rating = None  # Replies (admin or customer) should not have a rating
+
+    # Debug: Print the values being passed
+    print(f"Adding review with the following values:")
+    print(f"user_id: {user_id}")
+    print(f"asset_id: {asset_id}")
+    print(f"review_text: {review_text}")
+    print(f"order_id: {order_id}")
+    print(f"rating: {rating}")
+    print(f"parent_review_id: {parent_review_id}")
+    print(f"author_role: {author_role}")
+
+    # Check if parent_review_id exists in the database
+    if parent_review_id is not None:
+        cursor = db.cursor()
+        cursor.execute("SELECT review_id FROM reviews WHERE review_id = %s", (parent_review_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        if not result:
+            print(f"Parent review ID {parent_review_id} does not exist.")
+            return False
+
     try:
         cursor = db.cursor()
         query = """
@@ -21,6 +42,10 @@ def add_review(user_id, asset_id, review_text, order_id, rating=None, parent_rev
         (review_login_id, review_asset_id, review_asset_rating, review_asset_comments, parent_review_id, author_role, created_at, review_order_item_id) 
         VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s)
         """
+        # Debug: Print the query and parameters
+        print(f"Executing query: {query}")
+        print(f"Values: {user_id}, {asset_id}, {rating}, {review_text}, {parent_review_id}, {author_role}, {order_id}")
+
         cursor.execute(query, (user_id, asset_id, rating, review_text, parent_review_id, author_role, order_id))
         db.commit()
         cursor.close()

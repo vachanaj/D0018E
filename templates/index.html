@@ -172,96 +172,161 @@
             .catch(error => console.error("Error:", error));
         }
     }
-    
-    function saveResponseAdmin(reviewId) {
-        const response = document.getElementById(`response-${reviewId}`).value;
 
-        if (!response) {
-            alert("Please write a response before submitting.");
-            return;
-        }
+        // Add a new row
+    function addRow() {
+        const table = document.getElementById('assetTable').getElementsByTagName('tbody')[0];
+        const newRow = table.insertRow();
+        newRow.innerHTML = `
+            <td><input type="text" placeholder="Type"></td>
+            <td><input type="text" placeholder="Description"></td>
+            <td><input type="number" placeholder="Price"></td>
+            <td><input type="number" placeholder="Quantity"></td>
+            <td><input type="text" placeholder="Image Address"></td>
+            <td><button onclick="saveNewRow(this)">Save</button></td>
+        `;
+    }
 
-        console.log(`Saving response for review ID: ${reviewId}`);  // Debugging
-        console.log(`Response text: ${response}`);  // Debugging
+    // Save a new row
+    function saveNewRow(button) {
+        const row = button.closest('tr');
+        const inputs = row.querySelectorAll('input');
+        const data = {
+            assets_type: inputs[0].value,
+            assets_desc: inputs[1].value,
+            assets_price: inputs[2].value,
+            assets_quantity: inputs[3].value,
+            assets_img_name: inputs[4].value,
+            assets_rating: 4  // Always set to 4
+        };
 
-        fetch(`/admin/reply/${reviewId}`, {
+        fetch('/admin/add-asset', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                response: response,
-                author_role: 'admin'  // Explicitly set the role to 'admin'
-            }),
+            body: JSON.stringify(data)
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                alert('Response saved successfully');
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Asset added successfully!');
                 location.reload();  // Reload the page to reflect changes
             } else {
-                alert('Failed to save response: ' + data.message);
+                alert('Failed to add asset: ' + result.message);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while saving the response.');
+            alert('An error occurred while adding the asset.');
         });
     }
 
-    function saveResponse(reviewId) {
-        console.log("saveResponse called with reviewId:", reviewId);
-        const responseInput = document.getElementById(`response-${reviewId}`);
-
-        if (!responseInput) {
-            alert("Response input field not found.");
-            return;
+    function deleteRow(assetId) {
+        if (confirm('Are you sure you want to delete this asset?')) {
+            console.log("Deleting asset with ID:", assetId);  // Debugging: Print assetId
+            fetch(`/admin/delete-asset/${assetId}`, {
+                method: 'POST'
+            })
+            .then(response => {
+                console.log("Response status:", response.status);  // Debugging: Print response status
+                return response.json();
+            })
+            .then(result => {
+                console.log("Response data:", result);  // Debugging: Print response data
+                if (result.success) {
+                    alert('Asset deleted successfully!');
+                    location.reload();  // Reload the page to reflect changes
+                } else {
+                    alert('Failed to delete asset: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);  // Debugging: Print the error
+                alert('An error occurred while deleting the asset.');
+            });
         }
+    }
 
-        const response = responseInput.value;
-        console.log("Response:", response);
+    // Save changes to an existing row
+    function saveRow(assetId) {
+        const row = document.querySelector(`tr[data-asset-id="${assetId}"]`);
+        const inputs = row.querySelectorAll('input');
+        const data = {
+            assets_type: inputs[0].value,
+            assets_desc: inputs[1].value,
+            assets_price: inputs[2].value,
+            assets_quantity: inputs[3].value,
+            assets_img_name: inputs[4].value,
+            assets_rating: 4  // Always set to 4
+        };
+        console.log("Data to update:", data);  // Debugging: Print data to update
 
-        if (!response) {
-            alert("Please write a response before submitting.");
-            return;
-        }
-
-        fetch(`/customer/reply/${reviewId}`, {
+        fetch(`/admin/update-asset/${assetId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                response: response,
-                author_role: 'customer'
-            }),
+            body: JSON.stringify(data)
         })
         .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Failed to save response');
-                });
-            }
+            console.log("Response status:", response.status);  // Debugging: Print response status
             return response.json();
         })
-        .then(data => {
-            if (data.success) {
-                alert('Response saved successfully');
-                location.reload();
+        .then(result => {
+            console.log("Response data:", result);  // Debugging: Print response data
+            if (result.success) {
+                alert('Asset updated successfully!');
             } else {
-                throw new Error(data.message || 'Failed to save response');
+                alert('Failed to update asset: ' + result.message);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert(`Error: ${error.message}`);
+            console.error('Error:', error);  // Debugging: Print the error
+            alert('An error occurred while updating the asset.');
         });
     }
+    
+    function saveResponseAdmin(reviewId) {
+    const response = document.getElementById(`response-${reviewId}`).value;
+
+    if (!response) {
+        alert("Please write a response before submitting.");
+        return;
+    }
+
+    console.log(`Saving response for review ID: ${reviewId}`);  // Debugging
+    console.log(`Response text: ${response}`);  // Debugging
+
+    fetch(`/admin/reply/${reviewId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            response: response,
+            author_role: 'admin'  // Explicitly set the role to 'admin'
+        }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            alert('Response saved successfully');
+            location.reload();  // Reload the page to reflect changes
+        } else {
+            alert('Failed to save response: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while saving the response.');
+    });
+}
 
 
         // Function to handle review submission (frontend only for now)

@@ -108,7 +108,7 @@ def admin_reply(review_id):
         print("Invalid request: Missing response_text")  # Debugging
         return jsonify({'success': False, 'message': 'Invalid request'})
 
-    # Fetch the original review to get the asset_id
+    # Fetch the original review to get the asset_id and review_order_item_id
     original_review = reviews.get_review_by_id(review_id)
     if not original_review:
         print("Original review not found")  # Debugging
@@ -121,9 +121,9 @@ def admin_reply(review_id):
             admin_id,
             original_review['review_asset_id'],
             response_text,
-            None,
-            review_id,  # Link to the original review
-            author_role  # Use the author_role from the request
+            original_review['review_order_item_id'],  # Pass the review_order_item_id from the original review
+            parent_review_id=review_id,  # Link to the original review
+            author_role=author_role  # Use the author_role from the request
         ):
             print("Response saved successfully")  # Debugging
             return jsonify({'success': True})
@@ -133,7 +133,7 @@ def admin_reply(review_id):
     except Exception as e:
         print(f"Error saving response: {e}")  # Debugging
         return jsonify({'success': False, 'message': 'An error occurred while saving the response'})
-
+                
 # Admin Dashboard Route
 @app.route('/admin/dashboard')
 def admin_page():
@@ -505,7 +505,7 @@ def update_cart():
     login_id =  login.get_login_id(session['username'])
     cart_id = cart.get_cart_id(login_id)
     cart_items.update_cart_item_op(cart_id, productId, iord) # incr/decr product from cart
-    return jsonify({"message": f"{productId} cart updated"})  # Send response
+    return jsonify({"message": f"{productId} cart updated"})  
 
 @app.route('/add_to_cart', methods=['GET', 'POST'])
 def add_to_cart():
@@ -519,7 +519,7 @@ def add_to_cart():
     cart_id = cart.get_cart_id(login_id)
     cart_items.add_to_cart(cart_id, productId)  # Add product to cart
     # You can store this in a database or session
-    return jsonify({"message": f"{productId} added to cart!"})  # Send response
+    return jsonify({"message": f"{productId} added to cart!"})  
 
 @app.route('/remove_from_cart', methods=['POST'])
 def remove_from_cart():
@@ -531,7 +531,7 @@ def remove_from_cart():
     cart_id = cart.get_cart_id(login_id)
     cart_items.remove_from_cart(cart_id, productId)  # Remove product from cart
     # You can store this in a database or session
-    return jsonify({"message": f"{productId} removed from cart!"})  # Send response
+    return jsonify({"message": f"{productId} removed from cart!"})  # Send 
 
 @app.route('/get_cart_items')
 def get_cart_items():
@@ -540,7 +540,7 @@ def get_cart_items():
     #cartItem = cart_items.get_recent_cart_item(cart_id)
     cartItems = cart_items.get_cart_items(cart_id)  # Get all cart items from cart ID
     print("cartItems:", cartItems)  # Debugging: Print cart items
-    return jsonify(cartItems)  # Send cart items as JSON response
+    return jsonify(cartItems)  # Send cart items as JSON 
 
 @app.route('/shoppingcart')
 def shoppingcart():
